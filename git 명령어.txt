@@ -2,5 +2,5 @@ git add ""
 git commit -m ""
 git push
 git pull
-? 되는거 같은데?
+
 
