@@ -2,4 +2,4 @@ git add ""
 git commit -m ""
 git push
 git pull
-아오 좀 되라
+여기서는 되나?
