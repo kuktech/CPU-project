@@ -1,14 +1,5 @@
-<<<<<<< HEAD
-git add "폴더명/파일명"
-git commit -m "기록하고 싶은 말"
-git push
-=======
 git add ""       
 git commit -m ""
 git push
 git pull
-<<<<<<< HEAD
->>>>>>> 4561b723ecac585f72854c2b4b122731235a4893
-=======
-efsfsfsfs
->>>>>>> 84ed107a1adb8d1a3d6f8dc65627dd574b1a4d79
+아오 좀 되라
