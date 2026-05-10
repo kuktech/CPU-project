@@ -1,3 +1,4 @@
-git add "폴더명/파일명"
-git commit -m "기록하고 싶은 말"
+git add ""       
+git commit -m ""
 git push
+git pull
