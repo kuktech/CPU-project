@@ -2,4 +2,4 @@ git add ""
 git commit -m ""
 git push
 git pull
-여기서는 되나?
+근데 왜 여기선 안돼?
