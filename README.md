@@ -8,3 +8,5 @@
 
 5/9 : instrucion decoder start
 
+git이랑 vscode 연동 성공
+vscode에서 작성 중
