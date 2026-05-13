@@ -338,6 +338,255 @@ Ex)코드에서 Z=1, N=0, C=1, V=0 이렇게 나온다면 SR = 4'b0101 이렇게
 
 ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
-6-3. Register File + ALU + SR 연결하기
+6-3. Register File + ALU + SR 연결
 
-집 가서 하기
+이걸 왜 해?
+->  Register File
+   ┌──────────────┐
+   │ R1      R2   │
+   └──┬────────┬──┘
+      ↓        ↓
+        ALU
+         ↓
+   RESULT + FLAG
+      ↓      ↓
+ Register    SR
+ WriteBack  저장
+
+ HDL 코드
+
+ module cpu_core(
+    input clk
+);
+
+reg [15:0] R[0:7]; // 8개의 16비트 레지스터 R0~R7
+reg [3:0] SR; // SR = {V, C, N, Z}
+
+reg [15:0] A, B; // ALU 입력 레지스터, 실제로는 ALU에 바로 연결 가능
+reg [15:0] RESULT; // ALU 결과 레지스터
+
+always @(posedge clk)   // 클럭마다 실행
+begin
+    A = R[1];   // R1에서 값 읽어서 A에 저장
+    B = R[2];   // R2에서 값 읽어서 B에 저장
+
+    RESULT = A + B;   // ADD
+
+    R[1] <= RESULT;   // Write Back
+
+    SR[0] <= (RESULT == 0); // Z
+    SR[1] <= RESULT[15];    // N
+end
+
+endmodule
+
+코드 해석
+R1 읽기 -> R2 읽기 -> 더하기 -> R1에 다시 저장 -> Flag 저장
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+7. Decoder 만들기 (개좆좆됨) (CPU의 두놔) (중요) (핵심) (강조) (많이 어려움)
+Decoder = 명령어 해석기, 명령어 해석기, 명령어 파파고
+
+핵심 블록
+Instruction Decoder(ID) block : 제어 신호 제공 (중요합니데이~~~)
+
+HDL 코드
+
+module decoder(
+    input [15:0] IR,
+
+    output reg [2:0] rd,
+    output reg [2:0] rs,
+    output reg [2:0] alu_op,
+    output reg reg_we
+);
+
+always @(*)
+begin
+    rd = IR[11:9]; // 목적자 레지스터 주소, 어느 레지스터에 결과 저장할지
+    rs = IR[8:6];  // 원본 레지스터 주소, 어느 레지스터를 읽을지
+
+    reg_we = 1'b0; // 기본값 = 쓰기 허용 안함, 결과 저장 허가중
+    alu_op = 3'b000; // 기본값 = ADD, 000 = ADD
+
+    case(IR[15:12]) // 명령어 종류 보고 제어 신호 결정
+
+    4'b0000: begin   // ADD
+        alu_op = 3'b000;
+        reg_we = 1'b1;
+    end
+
+    4'b0001: begin   // SUB
+        alu_op = 3'b001;
+        reg_we = 1'b1;
+    end
+
+    4'b0010: begin   // AND
+        alu_op = 3'b010;
+        reg_we = 1'b1;
+    end
+
+    4'b0011: begin   // OR
+        alu_op = 3'b011;
+        reg_we = 1'b1;
+    end
+
+    endcase
+end
+
+endmodule
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+8. Decoder + ALU + Register 완전 연결
+
+연결 구조
+IR(명령어)
+   ↓
+Decoder
+   ↓
+Register File
+   ↓
+ALU
+   ↓
+SR(Flag)
+   ↓
+Write Back
+
+HDL 코드
+
+module cpu_onecycle( // 한 사이클 CPU
+    input clk,       // 클럭
+    input [15:0] IR  // 명령어 레지스터, 외부에서 명령어 입력 받음
+);
+
+reg [15:0] R[0:7];
+reg [3:0] SR; // 상태 레지스터
+
+reg [2:0] rd, rs; // Decoder에서 해석된 rd, rs
+reg [15:0] A, B;  // ALU 입력 레지스터
+reg [15:0] RESULT; // ALU 결과 레지스터
+
+always @(posedge clk)
+begin
+    rd = IR[11:9];  
+    rs = IR[8:6];
+
+    case(IR[15:12])
+
+    4'b0000: begin   // ADD
+        A = R[rd];   // 목적자 레지스터에서 값 읽어서 A에 저장
+        B = R[rs];   // 원본 레지스터에서 값 읽어서 B에 저장
+
+        RESULT = A + B;
+
+        R[rd] <= RESULT;
+
+        SR[0] <= (RESULT == 0);
+        SR[1] <= RESULT[15];
+    end
+
+    4'b0001: begin   // SUB
+        A = R[rd];
+        B = R[rs];
+
+        RESULT = A - B;
+
+        R[rd] <= RESULT;
+    end
+
+    endcase
+end
+
+endmodule
+
+코드 해석 명령어 읽기 -> 어떤 연산인지 판단 -> 레지스터 값 꺼냄 -> 계산 -> 다시 저장 -> Flag 저장
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+9. FSM + Decoder + ALU + Register 완전 연결 (CPU 완성)
+기존 one-cycle CPU가 아니라,
+상태	 의미
+T1	     Instruction Fetch // 명령어 읽기 (명령어 가져오기)
+(클럭1 → 명령어 읽기)
+T2	     Decode            // 어떤 명령어 해석  
+(클럭2 → 해석)
+T3	     Execute           // 계산
+(클럭3 → 계산)
+T4	     Memory            // 메모리 접근  
+(클럭4 → 메모리)
+T5	     Write Back        // 결과 저장 (결과 R1 저장, 플래그 SR 저장)
+(클럭5 → 결과 저장)
+
+HDL 코드 
+
+module cpu_fsm( // FSM + Decoder + ALU + Register 완전 연결
+    input clk,
+    input reset
+);
+
+reg [2:0] state; // 상태 레지스터
+
+reg [15:0] R[0:7];
+reg [15:0] IR; // 명령어 레지스터
+reg [15:0] PC; // 프로그램 카운터
+reg [3:0] SR;  // 상태 레지스터
+
+reg [2:0] rd, rs; // Decoder에서 해석된 rd, rs
+reg [15:0] A, B, RESULT;
+
+/* 상태 변화 */
+always @(posedge clk or posedge reset) // 클럭 상승 에지나 리셋 신호에 반응 (변경 가능)
+begin
+    if(reset) // 리셋 신호 들어오면 T1으로 초기화
+        state <= 3'd1; // T1 시작
+    else if(state == 3'd5) // T5 끝나면 다시 T1으로 돌아감
+        state <= 3'd1; // T1 시작
+    else
+        state <= state + 1; // T1 -> T2 -> T3 -> T4 -> T5 -> T1 -> ... 
+end
+
+/* CPU 동작 */
+always @(posedge clk) // 클럭마다 실행
+begin
+    case(state)
+
+    3'd1: begin   // T1 IF, T1에 명령어 읽기 (명령어 가져오기)
+        IR <= 16'b0000_001_010_000000; // ADD R1,R2 예시
+        PC <= PC + 2;
+    end
+
+    3'd2: begin   // T2 ID, T2에 명령어 해석
+        rd <= IR[11:9];
+        rs <= IR[8:6];
+    end
+
+    3'd3: begin   // T3 EXE, T3에 계산
+        A <= R[rd];
+        B <= R[rs];
+        RESULT <= R[rd] + R[rs];
+    end
+
+    3'd4: begin   // T4 MEM, T4에 메모리 접근
+        // ADD는 메모리 안씀
+    end
+
+    3'd5: begin   // T5 WB, T5에 결과 저장
+        R[rd] <= RESULT; // 결과 R1 저장
+        SR[0] <= (RESULT == 0); // Z 플래그 저장
+        SR[1] <= RESULT[15]; // N 플래그 저장
+    end
+
+    endcase
+end
+
+endmodule
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+10. LOAD / STORE () (CPU 완성 후 다음 단계)
+LOAD / STORE 명령어는 메모리에서 데이터를 읽거나 쓰는 명령어
+LOAD = 메모리 값을 레지스터로 가져오기
+STORE = 레지스터 값을 메모리에 저장하기
+
+나머지는 내일하기
