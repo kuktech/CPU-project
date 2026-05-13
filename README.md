@@ -6,7 +6,8 @@
 (수정)4.복붙해서 새로운 파일에 붙여넣을 필요 없습니다. 그냥 하나의 파일사용합시다.(history에서 코드 기록 다 남음)<br>
 5.파일->History : 수정된 내용이 초록색 영역으로 표시됩니다.<br>
 
-5/9 : instrucion decoder start
+instrution decoder는 다른 블록들의 입력과 기능을 위한 출력때문에 복잡하기 때문에 후반에 작성합시다.
 
-git이랑 vscode 연동 성공
-vscode에서 작성 중
+
+
+
