@@ -1,6 +1,6 @@
 module program_counter (
     input wire        clock,
-    input wire        reset,
+
 
     input wire        pc_wr_en,
     input wire        pc_sel,
@@ -22,11 +22,9 @@ assign pc_update_en = pc_wr_en &&
                       (((pc_sel == 1'b0) && t1_wr) ||
                        ((pc_sel == 1'b1) && t3_wr));
 
-always @(posedge clock or posedge reset) begin
-    if (reset) begin
-        pc_out <= 16'h0000;
-    end
-    else if (pc_update_en) begin
+always @(posedge clock) begin
+ 
+    if (pc_update_en) begin
         pc_out <= next_pc;
     end
 end
