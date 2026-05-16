@@ -1,8 +1,8 @@
 state control에서 t2일때 명령어 decode,제어신호 생성
 
 op_group[4:0] : opcode, 이것으로 명령어 종류를 크게분류
-op_kind[3:0] : 세부 동작을 비트로 정의 , 다른 블록에는 이 신호가 전송됨
-enable은 1비트로 각각 이름을 정의해야 함.
+op_kind[N:0] : 세부 동작을 비트로 정의 , 다른 블록에는 이 신호가 전송됨
+enable은 1비트로 설정해 각각 이름을 정의해야 함.
 
 rd,rs,offset,value는 일단 변수를 정의해서 0을 저장하고, op group에
 따라서 instruction비트에서 맞는 비트를 대입.

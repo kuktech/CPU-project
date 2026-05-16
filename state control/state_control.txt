@@ -12,7 +12,8 @@ t5 : register저장
 RD <- RD + RS에서 RD에 저장하는 단계
 
 예시
-t3 : MAR = RS , LDI,STI의 경우, ALU가 필요없음, data bus에서 저장
-t4 : MBR(load buffer) = mem(주소)
+t2 : MAR = RS , LDI,STI의 경우, ALU가 필요없음, data bus에서 저장
+t4 : MBR(load buffer) = mem(MAR)
 t5 : RD <- load buffer
+
 

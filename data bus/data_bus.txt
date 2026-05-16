@@ -1,0 +1,9 @@
+dbus_access : 2비트,명령어가 data memory를 읽는지,쓰는지를 선택
+00 사용x , 10 read access, 11 write access
+
+dbus_addr_sel : 2비트,memory address의 출처를 지정.
+이것을 조건문으로 MAR에 저장할 주소를 선택.
+
+dbus_data_sel : 2비트,Data memory에 쓸 data의 출처를 지정.
+
+RDb,WRb : active low, dbus_access에 따라 data bus에서 설정.

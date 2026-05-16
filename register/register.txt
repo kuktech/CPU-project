@@ -1,0 +1,21 @@
+곱셉연산 등은 결과비트가 32비트이므로, register 2개에 저장해야 한다. 
+exe_32 : ALU결과값이 32비트인 경우 set하여 register블록으로 전송.
+
+instruction decoder block에서 des/src_reg를 받아 해당 register번호해석.
+
+T3에서 레지스터 값제공
+
+T4에서 data memory에 저장할 레지스터 값을 data bus에 제공
+
+T5에서 레지스터 저장진행 : register write enable비트 필요
+enable비트는 instruction decoder에서 제어신호생성과 함께 정의됨
+
+reg_dt_sel : ALU결과를 저장할지, data memory값을 저장할지 선택.
+instruction decoder에서 설정.
+
+mem(Rd) <- Rs 경우,  mem_wr_en신호가 decoder에서 설정필요.
+T3에서 Rd의 값을 MAR에 저장하여 data bus와 연결, Rs값을 MBR에 저장.
+T4에서 data bus로 메모리에 접근하여 저장.
+T5에서 저장동작 없음.
+
+

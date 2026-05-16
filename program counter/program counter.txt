@@ -4,7 +4,7 @@ pc : 현재의 pc값 (다음 명령어), ALU, program bus(instruction register)
 t1_wr : pc + 2
 t3_wr : pc + offset (분기 명령어 실행시), instruction decoder
 
-pc_wr_en : t1_wr,t3_wr이 들어올 떄 함께 set되어야 함
+pc_wr_en : t1_wr,t3_wr이 들어올 떄 함께 set되어야 함, instruction decoder에서 정의.
 pc_sel[1:0] : MSB로 t1 , t3를 선택하고, LSB는 t3_wr이 1인경우에, pc+offset또는 subroutin
 
 ALU블록이 아니라, 블록 내부의 덧셈기를 정의하는 것임, ALU의 덧셈기가 아니다.
@@ -22,3 +22,6 @@ always @(posedge clk)
 
 CALL target : data memory와 연결(data bus에 의해)
 RET : SP의 memory값을 data bus로 연결받음
+
+분기명령어는, T3에서 PC값만 적재하고, 다음 T1부터 실행준비.
+이때 t4,t5에는 아무 동작 없음.

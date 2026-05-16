@@ -1,0 +1,4 @@
+sp_sel : push/pop선택, instruction decoder.
+sp_wr_en : instruction decoder에서 sp사용시 set.
+
+T5에서 업데이트, t5_wr은 정의할 필요 없음.(t5 타이밍 신호)
