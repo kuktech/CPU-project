@@ -1,0 +1,18 @@
+clock cycle마다 t1 t2 t3 t4 t5타이밍신호를 각 블록들에 전달.
+Rotator로 구성 
+clear/ResetB : Sequence counter <=000;
+            Rotator <= 10000
+
+t1 : 명령어 인출단계 , program counter,instruction register
+t2 : instruction decoder,  제어신호 생성
+t3 : ALU연산결과를 저장 , ALU,program counter
+t4 : data memory접근할때 유효, 결과 저장 , stack point,data bus
+mem(RD) <- RS , RD <- mem(RS)(RD접근은 t5에서, load buffer에 저장)
+t5 : register저장
+RD <- RD + RS에서 RD에 저장하는 단계
+
+예시
+t3 : MAR = RS , LDI,STI의 경우, ALU가 필요없음, data bus에서 저장
+t4 : MBR(load buffer) = mem(주소)
+t5 : RD <- load buffer
+

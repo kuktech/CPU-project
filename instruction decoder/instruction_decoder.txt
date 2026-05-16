@@ -1,0 +1,22 @@
+state control에서 t2일때 명령어 decode,제어신호 생성
+
+op_group[4:0] : opcode, 이것으로 명령어 종류를 크게분류
+op_kind[3:0] : 세부 동작을 비트로 정의 , 다른 블록에는 이 신호가 전송됨
+enable은 1비트로 각각 이름을 정의해야 함.
+
+rd,rs,offset,value는 일단 변수를 정의해서 0을 저장하고, op group에
+따라서 instruction비트에서 맞는 비트를 대입.
+
+명령어가 비어있는 비트는 0으로 간주.
+
+op_group으로 1차 정의, 내부에서 sop1,2로 op_kind정의, 세부 제어신호 생성
+
+des_reg[3:0]
+src_reg[3:0]
+
+
+LD,ST명령어를 위해 data bus block과 연결.
+이때 data bus block에 전달될 rs,rd는 register비트가 아니라, 실제 데이터/주소값
+따라서 data bus blcok은 register block과 연결.
+
+

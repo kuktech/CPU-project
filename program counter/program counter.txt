@@ -1,0 +1,24 @@
+state control의 t1일때 명령어 인출 실행
+pc : 현재의 pc값 (다음 명령어), ALU, program bus(instruction register)
+
+t1_wr : pc + 2
+t3_wr : pc + offset (분기 명령어 실행시), instruction decoder
+
+pc_wr_en : t1_wr,t3_wr이 들어올 떄 함께 set되어야 함
+pc_sel[1:0] : MSB로 t1 , t3를 선택하고, LSB는 t3_wr이 1인경우에, pc+offset또는 subroutin
+
+ALU블록이 아니라, 블록 내부의 덧셈기를 정의하는 것임, ALU의 덧셈기가 아니다.
+제어신호에서 오는 분기값을 그냥 + 해주면 된다.
+t1_wr -> pc+2 
+t3_wr -> pc+offset 또는 subroutin
+t1_wr은 instruction decoder에서 오는 신호가 아니라, state contol에서 오는 타이밍 신호.
+두 신호는 state control의 t1과는 다른 신호.
+
+
+t1~t5 타이밍신호를 state control이 반든 일반신호이기에 안정적인 clock이 아니다.
+따라서 always@(t1) 같이 쓰면 안되고, if문의 조건으로 사용한다.
+always @(posedge clk)
+    if (t1)
+
+CALL target : data memory와 연결(data bus에 의해)
+RET : SP의 memory값을 data bus로 연결받음
