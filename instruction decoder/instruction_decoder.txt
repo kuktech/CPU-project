@@ -19,4 +19,17 @@ LD,ST명령어를 위해 data bus block과 연결.
 이때 data bus block에 전달될 rs,rd는 register비트가 아니라, 실제 데이터/주소값
 따라서 data bus blcok은 register block과 연결.
 
+t2에서 생성된 제어신호가 다음 t2까지 저장되어야 다른 블록에 입력되어
+동작한다. 따라서 제어신호를 2개 생성해서 t2마다 초기화되는 내부 제어신호,
+clock마다 제어신호를 갱신하는 입력 제어신호를 각각 정의한다.
+always 구문을 2개로 나누어 작성.
+1. decoder 조합 출력
+   - 항상 현재 instruction을 보고 계산됨
+   - always @(*) 안에서 매번 기본값 0으로 시작
+   - 명령어에 해당하는 신호만 1로 set
+
+2. control register 저장 출력
+   - T2 clock rising에서 decoder 조합 출력을 저장
+   - T3~T5 동안 유지
+   - 다음 명령어의 T2에서 새 값으로 덮어쓰기
 
