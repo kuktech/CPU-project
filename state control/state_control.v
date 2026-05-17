@@ -31,5 +31,5 @@ always @(posedge clock or negedge reset_b) begin
 end
 
 assign {t1, t2, t3, t4, t5} = rotator;
-assign pc_wr_en = t1;
+assign pc_wr_en = t1 | t3 | t5;
 endmodule
