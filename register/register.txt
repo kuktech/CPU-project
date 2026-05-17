@@ -14,8 +14,13 @@ reg_dt_sel : ALU결과를 저장할지, data memory값을 저장할지 선택.
 instruction decoder에서 설정.
 
 mem(Rd) <- Rs 경우,  mem_wr_en신호가 decoder에서 설정필요.
-T3에서 Rd의 값을 MAR에 저장하여 data bus와 연결, Rs값을 MBR에 저장.
+T2에서 Rd의 값을 MAR에 저장하여 data bus와 연결, Rs값을 MBR에 저장.
 T4에서 data bus로 메모리에 접근하여 저장.
 T5에서 저장동작 없음.
 
 
+des_reg, src_reg로 레지스터를 선택
+선택된 레지스터에 값에 
+
+t3에서 ALU연산에 필요한 rd,rs신호는 t3이전에 전송되어야 안정적이므로
+t2에서 rd,rs에 저장.

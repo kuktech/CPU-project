@@ -7,3 +7,7 @@ dbus_addr_sel : 2비트,memory address의 출처를 지정.
 dbus_data_sel : 2비트,Data memory에 쓸 data의 출처를 지정.
 
 RDb,WRb : active low, dbus_access에 따라 data bus에서 설정.
+
+
+
+push의 경우, sp_in의 값을 -1한 다음 data memory에 접근해야 한다.
