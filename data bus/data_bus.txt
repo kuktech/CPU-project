@@ -11,3 +11,9 @@ RDb,WRb : active low, dbus_access에 따라 data bus에서 설정.
 
 
 push의 경우, sp_in의 값을 -1한 다음 data memory에 접근해야 한다.
+
+
+-data memory로 전송될 제어신호들
+dcsb_pin : active low, chip select
+drdb_pin : negedge , memory read enable
+dwrb_pin : negedge , memory write enable

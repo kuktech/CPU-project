@@ -8,10 +8,10 @@ input wire t5,
 input wire sp_sel,
 input wire sp_wr_en,
 
-output wire [15:0] sp_in
+output wire [15:0] sp_out
 );
 reg [15:0] sp = 16'b0000000011111111;
-assign sp_in = sp;
+assign sp_out = sp;
 
 always @(posedge clock or negedge reset_b ) begin
     if(!reset_b)begin
