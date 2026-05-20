@@ -1,11 +1,16 @@
 module instruction_register (
 input wire clock,
 input wire reset_b,
+
 input wire t1,
 input wire t3,
+
 input wire branch_en,
+
 input wire [15:0] pbus_in_data,
+
 output reg [15:0] instruction_out,
+
 output wire wr_en
 
 );
