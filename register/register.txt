@@ -24,3 +24,5 @@ des_reg, src_reg로 레지스터를 선택
 
 t3에서 ALU연산에 필요한 rd,rs신호는 t3이전에 전송되어야 안정적이므로
 t2에서 rd,rs에 저장.
+
+EXHG , SWAP명령어는 decoder의 제어신호를 입력받아 내부에서 수행

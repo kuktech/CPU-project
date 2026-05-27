@@ -1,9 +1,12 @@
 module program_counter(
 input wire clock,
 input wire reset_b,
+
 input wire [15:0] pc_in,
+
 input wire pc_wr_en,
 input wire [1:0] pc_sel,
+
 input wire t1,
 input wire t3,
 input wire t5,
@@ -21,11 +24,11 @@ always @(posedge clock or negedge reset_b) begin
     if (!reset_b) begin
         pc <= 16'b0;
     end
+     else if (t1) begin
+        pc <= pc + 16'd2;
+    end
     else if(pc_wr_en)begin
     case (pc_sel)
-        2'b00: if(t1)begin
-                pc <= pc + 2;
-            end
         2'b01: if(t3)begin
                 pc <= pc + offset_ext;
             end
@@ -35,7 +38,7 @@ always @(posedge clock or negedge reset_b) begin
         2'b11: if(t5)begin
                 pc <= pc_in;
             end
-        default: pc <= pc + 2;
+        default: pc <= pc;
     endcase
     end
 end
