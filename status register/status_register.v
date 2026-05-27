@@ -1,24 +1,24 @@
 module status_register (
 
-    input  wire        clock,
-    input  wire        reset_b,
+    input  wire  clock,
+    input  wire  resetb,
 
     // 게이트
-    input  wire        t5,          // ALU 결과 확정 타이밍 (SR 갱신)
-    input  wire        t2,          // 명령어 실행 타이밍 (CLR/SET)
+    input  wire  t5,          // ALU 결과 확정 타이밍 (SR 갱신)
+    input  wire  t2,          // 명령어 실행 타이밍 (CLR/SET)
 
     // 명령어 종류 식별
-    input  wire        sr_wr_en,    // ALU 연산 결과로 SR을 갱신할 때 1
-    input  wire        sr_bit_en,   // CLR SR.n / SET SR.n 명령어일 때 1
-    input  wire        sr_bit_sel,  // 0 = CLR,  1 = SET
+    input  wire  sr_wr_en,    // ALU 연산 결과로 SR을 갱신할 때 1
+    input  wire  sr_bit_en,   // CLR SR.n / SET SR.n 명령어일 때 1
+    input  wire  sr_bit_sel,  // 0 = CLR,  1 = SET
 
     // ALU 플래그 입력 (alu_plus.v 출력과 직결)
-    input  wire        alu_zf,
-    input  wire        alu_cf,
-    input  wire        alu_nf,
-    input  wire        alu_vf,
-    input  wire        alu_gtf,
-    input  wire        alu_ltf,
+    input  wire  alu_zf,
+    input  wire  alu_cf,
+    input  wire  alu_nf,
+    input  wire  alu_vf,
+    input  wire  alu_gtf,
+    input  wire  alu_ltf,
 
     // CLR/SET 대상 비트 번호 (명령어 [7:2] 필드 = SR.n)
     // SR 비트 배치: [5]=LT [4]=GT [3]=VF [2]=CF [1]=NF [0]=ZF
@@ -61,8 +61,8 @@ module status_register (
 
 // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 // SR 래치
-always @(posedge clock or negedge reset_b) begin
-    if (!reset_b) begin
+always @(posedge clock or negedge resetb) begin
+    if (!resetb) begin
         zf  <= 1'b0;
         nf  <= 1'b0;
         cf  <= 1'b0;
@@ -109,22 +109,6 @@ always @(posedge clock or negedge reset_b) begin
     end
 end
 
-// =============================================================
-// 분기 조건 출력 (조합 논리 – 등록된 SR 값 그대로 반영) 이게 뭔지는 나도 잘 모르겠음
-// 명령어 셋 기준:
-//   BRNZ : z=0 → PC <-- PC+offset
-//   BRZ  : z=1 → PC <-- PC+offset
-//   BRNS : s=0 → PC <-- PC+offset
-//   BRS  : s=1 → PC <-- PC+offset
-//   BRNC : c=0 → PC <-- PC+offset
-//   BRC  : c=1 → PC <-- PC+offset
-//   BRNV : v=0 → PC <-- PC+offset
-//   BRV  : v=1 → PC <-- PC+offset
-//   BRNGT: gt=0→ PC <-- PC+offset
-//   BRGT : gt=1→ PC <-- PC+offset
-//   BRNLT: lt=0→ PC <-- PC+offset
-//   BRLT : lt=1→ PC <-- PC+offset
-// =============================================================
 assign br_z   =  zf;
 assign br_nz  = ~zf;
 assign br_s   =  nf;
@@ -137,9 +121,6 @@ assign br_gt  =  gtf;
 assign br_ngt = ~gtf;
 assign br_lt  =  ltf;
 assign br_nlt = ~ltf;
-
-// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-// Carry 피드백 → ALU의 cf_in 포트로 연결
 
 assign cf_out = cf;
 
