@@ -2,7 +2,7 @@ module instruction_decoder (
     input [15:0] instruction,
     input [7:0] status,
 
-    output reg [5:0] alu_sel,
+    output reg [4:0] alu_sel,
     output reg [3:0] op_group,
     output reg [2:0] des_reg,
     output reg [2:0] src_reg,
@@ -16,14 +16,14 @@ module instruction_decoder (
     output reg mem_wr,
     output reg halt
 );
-wire [5:0] opcode = instruction[15:11];
+wire [4:0] opcode = instruction[15:11];
 wire [2:0] rd     = instruction[10:8];
 wire [2:0] rs     = instruction[7:5];
 wire [2:0] sop1   = instruction[4:2];
 wire [1:0] sop2   = instruction[1:0];
 
 always @(*) begin
-    alu_sel  = 6'b000000;
+    alu_sel  = 5'b00000;
     op_group = 4'b0000;
     des_reg  = 3'b000;
     src_reg  = 3'b000;

@@ -1,11 +1,9 @@
 module alu(
-input wire instruction[15:0],
+input wire [15:0]instruction,
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
 input wire [4:0] alu_sel,    // 5비트 opcode (명령어[15:11])
-input wire [2:0] sop1,       // 명령어[4:2] — 그룹 내 세부 선택 상위
-input wire [1:0] sop2,       // 명령어[1:0] — 그룹 내 세부 선택 하위
 input wire [7:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
 
 input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
@@ -21,8 +19,10 @@ output reg gtf,  // Greater-Than flag (CMP 전용)
 output reg ltf   // Less-Than flag    (CMP 전용)
 
 );
+
 wire [4:0] sop;
-assign = instruction[4:0];
+assign sop = instruction[4:0];
+
 /*
 =========================================================
 alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
@@ -65,12 +65,13 @@ alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
 `define GRP_LOGIC       5'b00110
 `define GRP_CMP         5'b00111
 
-// ── DATA, SHIFT & Rotate 그룹 내 {sop1, sop2} ──────────────────────
+// ── DATA 그룹 내 {sop} ──────────────────────
 `define DS_INC      5'b000_00
 `define DS_DEC      5'b000_01
 `define DS_NEC      5'b000_10
 `define DS_NOT      5'b000_11
-//
+
+// ── SHIFT & Rotate 그룹 내 {sop} ──────────────────────
 `define DS_SHL      5'b001_00
 `define DS_SHR      5'b001_01
 `define DS_ASL      5'b001_10
@@ -84,7 +85,7 @@ alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
 `define DS_ROL_V    5'b110_00
 `define DS_ROR_V    5'b110_01
 
-// ── ARITH 그룹 내 {sop1, sop2} ───────────────────────────
+// ── ARITH 그룹 내 {sop} ───────────────────────────
 `define AR_ADD      5'b000_00
 `define AR_ADDC     5'b000_01
 `define AR_ADDB     5'b000_10
@@ -101,10 +102,10 @@ alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
 `define AR_MODB     5'b011_11
 
 // ── LOGIC 그룹 내 sop2 (2-bit) ───────────────────────────
-`define LG_AND      2'b00
-`define LG_OR       2'b01
-`define LG_XOR      2'b10
-`define LG_NOR      2'b11
+`define LG_AND      2'b000_00
+`define LG_OR       2'b000_01
+`define LG_XOR      2'b000_10
+`define LG_NOR      2'b000_11
 
 // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
@@ -292,7 +293,7 @@ always @(*) begin
     // ARITH 그룹 (opcode = 00101)
     // =========================================================
     `GRP_ARITH: begin
-        case ({sop1, sop2})
+        case (sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Arithmetic – 16-bit
@@ -488,7 +489,7 @@ always @(*) begin
     // sop1 무시, sop2만으로 구분
     // =========================================================
     `GRP_LOGIC: begin
-        case (sop2)
+        case (sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Logical
