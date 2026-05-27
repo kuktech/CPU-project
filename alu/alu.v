@@ -1,11 +1,9 @@
 module alu(
-input wire instruction[15:0],
+input wire [15:0] instruction,
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
 input wire [4:0] alu_sel,    // 5비트 opcode (명령어[15:11])
-input wire [2:0] sop1,       // 명령어[4:2] — 그룹 내 세부 선택 상위
-input wire [1:0] sop2,       // 명령어[1:0] — 그룹 내 세부 선택 하위
 input wire [7:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
 
 input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
@@ -23,6 +21,7 @@ output reg ltf   // Less-Than flag    (CMP 전용)
 );
 wire [4:0] sop;
 assign = instruction[4:0];
+sdfsf
 /*
 =========================================================
 alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
