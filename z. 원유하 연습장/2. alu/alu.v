@@ -1,5 +1,5 @@
 module alu(
-
+input wire instruction[15:0],
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
@@ -21,40 +21,43 @@ output reg gtf,  // Greater-Than flag (CMP 전용)
 output reg ltf   // Less-Than flag    (CMP 전용)
 
 );
+wire [4:0] sop;
+assign = instruction[4:0];
+/*
+=========================================================
+alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
+---------------------------------------------------------
+00100  DATA_SHIFT   Data Operation + Shift/Rotate
+00101  ARITH        Arithmetic (ADD/SUB/MUL/DIV/MOD)
+00110  LOGIC        Logical (AND/OR/XOR/NOR)
+00111  CMP          Compare
+=========================================================
 
-// =========================================================
-// alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
-// ---------------------------------------------------------
-// 00100  DATA_SHIFT   Data Operation + Shift/Rotate
-// 00101  ARITH        Arithmetic (ADD/SUB/MUL/DIV/MOD)
-// 00110  LOGIC        Logical (AND/OR/XOR/NOR)
-// 00111  CMP          Compare
-// =========================================================
-//
-// 그룹 내 세부 선택: {sop1[2:0], sop2[1:0]}  (5-bit)
-//
-// ── DATA_SHIFT (alu_sel = 00100) ─────────────────────────
-//  {sop1, sop2}
-//  000_00  INC        000_01  DEC        000_10  NEC        000_11  NOT
-//  001_00  SHL(1)     001_01  SHR(1)     001_10  ASL(1)     001_11  ASR(1)
-//  010_00  ROL(1)     010_01  ROR(1)
-//  101_00  SHL_V      101_01  SHR_V      101_10  ASL_V      101_11  ASR_V
-//  110_00  ROL_V      110_01  ROR_V
-//
-// ── ARITH (alu_sel = 00101) ──────────────────────────────
-//  {sop1, sop2}
-//  000_00  ADD        000_01  ADDC       000_10  ADDB       000_11  ADDBC
-//  001_00  SUB        001_01  SUBC       001_10  SUBB       001_11  SUBBC
-//  010_00  MUL        010_10  MULB
-//  011_00  DIV        011_01  MOD        011_10  DIVB       011_11  MODB
-//
-// ── LOGIC (alu_sel = 00110) ──────────────────────────────
-//  {sop1, sop2}  ─  sop1 무시, sop2만 사용
-//  xxx_00  AND        xxx_01  OR         xxx_10  XOR        xxx_11  NOR
-//
-// ── CMP (alu_sel = 00111) ────────────────────────────────
-//  sub-op 없음
-// =========================================================
+그룹 내 세부 선택: {sop1[2:0], sop2[1:0]}  (5-bit)
+
+── DATA_SHIFT (alu_sel = 00100) ─────────────────────────
+ {sop1, sop2}
+ 000_00  INC        000_01  DEC        000_10  NEC        000_11  NOT
+ 001_00  SHL(1)     001_01  SHR(1)     001_10  ASL(1)     001_11  ASR(1)
+ 010_00  ROL(1)     010_01  ROR(1)
+ 101_00  SHL_V      101_01  SHR_V      101_10  ASL_V      101_11  ASR_V
+ 110_00  ROL_V      110_01  ROR_V
+
+── ARITH (alu_sel = 00101) ──────────────────────────────
+ {sop1, sop2}
+ 000_00  ADD        000_01  ADDC       000_10  ADDB       000_11  ADDBC
+ 001_00  SUB        001_01  SUBC       001_10  SUBB       001_11  SUBBC
+ 010_00  MUL        010_10  MULB
+ 011_00  DIV        011_01  MOD        011_10  DIVB       011_11  MODB
+
+── LOGIC (alu_sel = 00110) ──────────────────────────────
+ {sop1, sop2}  ─  sop1 무시, sop2만 사용
+ xxx_00  AND        xxx_01  OR         xxx_10  XOR        xxx_11  NOR
+
+── CMP (alu_sel = 00111) ────────────────────────────────
+ sub-op 없음
+=========================================================
+*/
 
 // ── alu_sel 그룹 코드 ─────────────────────────────────────
 `define GRP_DATA_SHIFT  5'b00100
@@ -62,11 +65,12 @@ output reg ltf   // Less-Than flag    (CMP 전용)
 `define GRP_LOGIC       5'b00110
 `define GRP_CMP         5'b00111
 
-// ── DATA_SHIFT 그룹 내 {sop1, sop2} ──────────────────────
+// ── DATA, SHIFT & Rotate 그룹 내 {sop1, sop2} ──────────────────────
 `define DS_INC      5'b000_00
 `define DS_DEC      5'b000_01
 `define DS_NEC      5'b000_10
 `define DS_NOT      5'b000_11
+//
 `define DS_SHL      5'b001_00
 `define DS_SHR      5'b001_01
 `define DS_ASL      5'b001_10
@@ -137,7 +141,7 @@ always @(*) begin
     // DATA_SHIFT 그룹 (opcode = 00100)
     // =========================================================
     `GRP_DATA_SHIFT: begin
-        case ({sop1, sop2})
+        case (sop)
 
         /* 여기서부터 찐 시작 */
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
