@@ -67,12 +67,15 @@ wire [2:0] rs     = instruction[7:5];
 `define MULB 10'0010101010
 `define DIV 10'0010101100
 `define DIVB 10'0010101110
-`define MOD 10'0010101100
-`define ADD 10'0010100000
+`define MOD 10'0010101101
+`define MODB 10'0010101111
 
-`define Logical 5'00000
+`define AND 10'0011000000
+`define OR 10'0011000001
+`define XOR 10'0011000010
+`define NOR 10'0011000011
 
-`define Compare 5'00000
+`define CMP 10'0011100000
 
 `define Bit_manipulate 5'00000
 
