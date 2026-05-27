@@ -1,3 +1,5 @@
+
+
 module instruction_decoder (
     input [15:0] instruction,
     input [7:0] status,
@@ -16,7 +18,7 @@ module instruction_decoder (
     output reg mem_wr,
     output reg halt
 );
-wire [4:0] operation = {instruction[15:11],instruction[4:0]};
+wire [9:0] operation = {instruction[15:11],instruction[4:0]};
 wire [2:0] rd     = instruction[10:8];
 wire [2:0] rs     = instruction[7:5];
 
@@ -51,18 +53,18 @@ wire [2:0] rs     = instruction[7:5];
 `define ROR_value 10'0010011101
 
 `define ADD 10'0010100000
-`define ADDC 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
-`define ADD 10'0010100000
+`define ADDC 10'0010100001
+`define ADDB 10'0010100010
+`define ADDBC 10'0010100011
+`define SUB 10'0010100100
+`define SUBC 10'0010100101
+`define SUBB 10'0010100110
+`define SUBBC 10'0010100111
+`define MUL 10'0010101000
+`define MULB 10'0010101010
+`define DIV 10'0010101100
+`define DIVB 10'0010101110
+`define MOD 10'0010101100
 `define ADD 10'0010100000
 
 `define Logical 5'00000
