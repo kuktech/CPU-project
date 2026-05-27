@@ -3,7 +3,6 @@ input wire clock,
 input wire reset_b,
 
 input wire t1,
-input wire t3,
 
 input wire branch_en,
 
@@ -14,7 +13,7 @@ output reg [15:0] instruction_out,
 output wire wr_en
 
 );
-assign wr_en = t1 | (t3 & branch_en);
+assign wr_en = t1;
 
 always @(posedge clock or negedge reset_b) begin
     if(!reset_b)begin

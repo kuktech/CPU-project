@@ -3,21 +3,101 @@ module alu(
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
-input wire [4:0] alu_sel,
+input wire [5:0] alu_sel,    // 6비트 → 최대 64개 연산 (인코딩표 참조하셈)
+/* 5비트로 하면 명령어 수 부족해서 6비트로 바꿈 그래서 decoder 만들 때 참고하셈 아니다 그냥 꾹 참고 하셈 */
+input wire [7:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
 
-input wire cf_in,   // ADDC, SUBC용 Carry 입력
+input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
 
 output reg [15:0] alu_result0,
 output reg [15:0] alu_result1,
 
-output reg zf,
-output reg cf,
-output reg nf,
-output reg vf
+output reg zf,   // Zero flag
+output reg cf,   // Carry flag
+output reg nf,   // Negative(Sign) flag
+output reg vf,   // Overflow flag
+output reg gtf,  // Greater-Than flag (CMP 전용)
+output reg ltf   // Less-Than flag    (CMP 전용)
 
 );
 
+// =========================================================
+// alu_sel 인코딩표 (6비트, 충돌 없음, 총 35개)
+// ---------------------------------------------------------
+// 000000  INC        000001  DEC        000010  NEC        000011  NOT
+// ---------------------------------------------------------
+// 000100  SHL(1)     000101  SHR(1)     000110  ASL(1)     000111  ASR(1)
+// 001000  ROL(1)     001001  ROR(1)
+// ---------------------------------------------------------
+// 001010  SHL_V      001011  SHR_V      001100  ASL_V      001101  ASR_V
+// 001110  ROL_V      001111  ROR_V
+// ---------------------------------------------------------
+// 010000  AND        010001  OR         010010  XOR        010011  NOR
+// ---------------------------------------------------------
+// 010100  CMP
+// ---------------------------------------------------------
+// 010101  ADD        010110  ADDC       010111  ADDB       011000  ADDBC
+// 011001  SUB        011010  SUBC       011011  SUBB       011100  SUBBC
+// ---------------------------------------------------------
+// 011101  MUL        011110  MULB
+// 011111  DIV        100000  DIVB
+// 100001  MOD        100010  MODB
+// =========================================================
+
+// 여기 다 6비트임, 전에 못 넣었던 명령어들 추가함 ㅄ
+// Data operation
+`define ALU_INC     6'b000000
+`define ALU_DEC     6'b000001
+`define ALU_NEC     6'b000010
+`define ALU_NOT     6'b000011
+
+// Shift/Rotate 1-bit
+`define ALU_SHL     6'b000100
+`define ALU_SHR     6'b000101
+`define ALU_ASL     6'b000110
+`define ALU_ASR     6'b000111
+`define ALU_ROL     6'b001000
+`define ALU_ROR     6'b001001
+
+// Shift/Rotate #value
+`define ALU_SHL_V   6'b001010
+`define ALU_SHR_V   6'b001011
+`define ALU_ASL_V   6'b001100
+`define ALU_ASR_V   6'b001101
+`define ALU_ROL_V   6'b001110
+`define ALU_ROR_V   6'b001111
+
+// Logical
+`define ALU_AND     6'b010000
+`define ALU_OR      6'b010001
+`define ALU_XOR     6'b010010
+`define ALU_NOR     6'b010011
+
+// Compare
+`define ALU_CMP     6'b010100
+
+// Arithmetic (16-bit)
+`define ALU_ADD     6'b010101
+`define ALU_ADDC    6'b010110
+`define ALU_ADDB    6'b010111
+`define ALU_ADDBC   6'b011000
+`define ALU_SUB     6'b011001
+`define ALU_SUBC    6'b011010
+`define ALU_SUBB    6'b011011
+`define ALU_SUBBC   6'b011100
+
+// MUL / DIV / MOD
+`define ALU_MUL     6'b011101
+`define ALU_MULB    6'b011110
+`define ALU_DIV     6'b011111
+`define ALU_DIVB    6'b100000
+`define ALU_MOD     6'b100001
+`define ALU_MODB    6'b100010
+
+// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
 reg [16:0] temp;
+reg [31:0] mul_temp;
 
 reg [15:0] quotient;
 reg [15:0] divisor;
@@ -27,706 +107,384 @@ integer i;
 
 always @(*) begin
 
+    // 기본값 초기화
     alu_result0 = 16'b0;
     alu_result1 = 16'b0;
+    zf  = 1'b0;
+    cf  = 1'b0;
+    nf  = 1'b0;
+    vf  = 1'b0;
+    gtf = 1'b0;
+    ltf = 1'b0;
 
-    zf = 1'b0;
-    cf = 1'b0;
-    nf = 1'b0;
-    vf = 1'b0;
-
-    temp = 17'b0;
-
+    temp      = 17'b0;
+    mul_temp  = 32'b0;
     quotient  = 16'b0;
     divisor   = 16'b0;
     remainder = 17'b0;
 
-    case(alu_sel)
+    case (alu_sel)
 
+    /* 여기서부터 찐 시작 */
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // Data Operation
 
-    // ADD
-    5'b00000: begin
-
-        temp = l_operand + r_operand;
-
+    // INC Rd : Rd <-- Rd + 1
+    `ALU_INC: begin
+        temp        = l_operand + 1;
         alu_result0 = temp[15:0];
-
         cf = temp[16];
-
-        vf = (~(l_operand[15] ^ r_operand[15])) &
-             (l_operand[15] ^ alu_result0[15]);
-
+        vf = (~l_operand[15]) & alu_result0[15];
     end
 
-    // ADDC
-    5'b00001: begin
-
-        temp = l_operand + r_operand + cf_in;
-
+    // DEC Rd : Rd <-- Rd - 1
+    `ALU_DEC: begin
+        temp        = l_operand - 1;
         alu_result0 = temp[15:0];
-
         cf = temp[16];
-
-        vf = (~(l_operand[15] ^ r_operand[15])) &
-             (l_operand[15] ^ alu_result0[15]);
-
+        vf = l_operand[15] & (~alu_result0[15]);
     end
 
-    // SUB
-    5'b00010: begin
-
-        temp = l_operand - r_operand;
-
+    // NEC Rd : Rd <-- ~Rd + 1  (2의 보수 부정)
+    `ALU_NEC: begin
+        temp        = (~l_operand) + 1;
         alu_result0 = temp[15:0];
-
         cf = temp[16];
-
-        vf = ((l_operand[15] ^ r_operand[15])) &
-             (l_operand[15] ^ alu_result0[15]);
-
+        vf = l_operand[15] & alu_result0[15];
     end
 
-    // SUBC
-    5'b00011: begin
-
-        temp = l_operand - r_operand - cf_in;
-
-        alu_result0 = temp[15:0];
-
-        cf = temp[16];
-
-        vf = ((l_operand[15] ^ r_operand[15])) &
-             (l_operand[15] ^ alu_result0[15]);
-
+    // NOT Rd : Rd <-- ~Rd  (1의 보수)
+    `ALU_NOT: begin
+        alu_result0 = ~l_operand;
     end
 
-    // MUL
-    5'b00100: begin
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // Shift / Rotate  (1-bit)
 
-        alu_result0 = 16'b0;
-        alu_result1 = 16'b0;
+    // SHL : logical shift left 1
+    `ALU_SHL: begin
+        cf          = l_operand[15];
+        alu_result0 = l_operand << 1;
+    end
 
-        for(i=0; i<16; i=i+1) begin
+    // SHR : logical shift right 1
+    `ALU_SHR: begin
+        cf          = l_operand[0];
+        alu_result0 = l_operand >> 1;
+    end
 
-            if(r_operand[i]) begin
+    // ASL : arithmetic shift left 1 (MSB→CF, vf = 부호 변화)
+    `ALU_ASL: begin
+        cf          = l_operand[15];
+        alu_result0 = l_operand <<< 1;
+        vf          = cf ^ alu_result0[15];
+    end
 
-                {alu_result1, alu_result0}
-                    =
-                {alu_result1, alu_result0}
-                    +
-                ({16'b0, l_operand} << i);
+    // ASR : arithmetic shift right 1 (부호 비트 유지)
+    `ALU_ASR: begin
+        cf          = l_operand[0];
+        alu_result0 = $signed(l_operand) >>> 1;
+    end
 
-            end
+    // ROL : rotate left 1
+    `ALU_ROL: begin
+        cf          = l_operand[15];
+        alu_result0 = {l_operand[14:0], l_operand[15]};
+    end
+
+    // ROR : rotate right 1
+    `ALU_ROR: begin
+        cf          = l_operand[0];
+        alu_result0 = {l_operand[0], l_operand[15:1]};
+    end
+
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // Shift / Rotate  (#value 즉값)
+
+    // SHL #value
+    `ALU_SHL_V: begin
+        if (shift_amt == 0) begin
+            alu_result0 = l_operand;
+        end else begin
+            cf          = l_operand[16 - shift_amt];
+            alu_result0 = l_operand << shift_amt;
         end
-
     end
 
-    // DIV
-    5'b00101: begin
+    // SHR #value
+    `ALU_SHR_V: begin
+        if (shift_amt == 0) begin
+            alu_result0 = l_operand;
+        end else begin
+            cf          = l_operand[shift_amt - 1];
+            alu_result0 = l_operand >> shift_amt;
+        end
+    end
 
+    // ASL #value
+    `ALU_ASL_V: begin
+        if (shift_amt == 0) begin
+            alu_result0 = l_operand;
+        end else begin
+            cf          = l_operand[16 - shift_amt];
+            alu_result0 = l_operand <<< shift_amt;
+            vf          = cf ^ alu_result0[15];
+        end
+    end
+
+    // ASR #value
+    `ALU_ASR_V: begin
+        if (shift_amt == 0) begin
+            alu_result0 = l_operand;
+        end else begin
+            cf          = l_operand[shift_amt - 1];
+            alu_result0 = $signed(l_operand) >>> shift_amt;
+        end
+    end
+
+    // ROL #value
+    `ALU_ROL_V: begin
+        if (shift_amt == 0) begin
+            alu_result0 = l_operand;
+        end else begin
+            alu_result0 = (l_operand << shift_amt) | (l_operand >> (16 - shift_amt));
+            cf          = l_operand[16 - shift_amt];
+        end
+    end
+
+    // ROR #value
+    `ALU_ROR_V: begin
+        if (shift_amt == 0) begin
+            alu_result0 = l_operand;
+        end else begin
+            alu_result0 = (l_operand >> shift_amt) | (l_operand << (16 - shift_amt));
+            cf          = l_operand[shift_amt - 1];
+        end
+    end
+
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // Logical
+
+    `ALU_AND: begin
+        alu_result0 = l_operand & r_operand;
+    end
+
+    `ALU_OR: begin
+        alu_result0 = l_operand | r_operand;
+    end
+
+    `ALU_XOR: begin
+        alu_result0 = l_operand ^ r_operand;
+    end
+
+    `ALU_NOR: begin
+        alu_result0 = ~(l_operand | r_operand);
+    end
+
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // Compare  (writeback 없음, flags only)
+
+    `ALU_CMP: begin
+        temp        = l_operand - r_operand;
+        alu_result0 = temp[15:0];
+        cf  = temp[16];
+        vf  = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
+        gtf = (~alu_result0[15]) & (alu_result0 != 16'b0) & (~vf);
+        ltf = alu_result0[15] ^ vf;
+    end
+
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // Arithmetic – 16-bit
+
+    `ALU_ADD: begin
+        temp        = l_operand + r_operand;
+        alu_result0 = temp[15:0];
+        cf = temp[16];
+        vf = (~(l_operand[15] ^ r_operand[15])) & (l_operand[15] ^ alu_result0[15]);
+    end
+
+    `ALU_ADDC: begin
+        temp        = l_operand + r_operand + {16'b0, cf_in};
+        alu_result0 = temp[15:0];
+        cf = temp[16];
+        vf = (~(l_operand[15] ^ r_operand[15])) & (l_operand[15] ^ alu_result0[15]);
+    end
+
+    // ADDB : Rd[7:0] + Rs[7:0], 상위 바이트 유지
+    `ALU_ADDB: begin
+        temp        = {9'b0, l_operand[7:0]} + {9'b0, r_operand[7:0]};
+        alu_result0 = {l_operand[15:8], temp[7:0]};
+        cf = temp[8];
+        vf = (~(l_operand[7] ^ r_operand[7])) & (l_operand[7] ^ temp[7]);
+    end
+
+    // ADDBC : Rd[7:0] + Rs[7:0] + cy
+    `ALU_ADDBC: begin
+        temp        = {9'b0, l_operand[7:0]} + {9'b0, r_operand[7:0]} + {8'b0, cf_in};
+        alu_result0 = {l_operand[15:8], temp[7:0]};
+        cf = temp[8];
+        vf = (~(l_operand[7] ^ r_operand[7])) & (l_operand[7] ^ temp[7]);
+    end
+
+    `ALU_SUB: begin
+        temp        = l_operand - r_operand;
+        alu_result0 = temp[15:0];
+        cf = temp[16];
+        vf = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
+    end
+
+    `ALU_SUBC: begin
+        temp        = l_operand - r_operand - {16'b0, cf_in};
+        alu_result0 = temp[15:0];
+        cf = temp[16];
+        vf = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
+    end
+
+    // SUBB : Rd[7:0] - Rs[7:0], 상위 바이트 유지
+    `ALU_SUBB: begin
+        temp        = {9'b0, l_operand[7:0]} - {9'b0, r_operand[7:0]};
+        alu_result0 = {l_operand[15:8], temp[7:0]};
+        cf = temp[8];
+        vf = (l_operand[7] ^ r_operand[7]) & (l_operand[7] ^ temp[7]);
+    end
+
+    // SUBBC : Rd[7:0] - Rs[7:0] - cy
+    `ALU_SUBBC: begin
+        temp        = {9'b0, l_operand[7:0]} - {9'b0, r_operand[7:0]} - {8'b0, cf_in};
+        alu_result0 = {l_operand[15:8], temp[7:0]};
+        cf = temp[8];
+        vf = (l_operand[7] ^ r_operand[7]) & (l_operand[7] ^ temp[7]);
+    end
+
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // MUL / DIV / MOD  – Shift 기반
+
+    // MUL : {alu_result1, alu_result0} = Rd * Rs (32-bit)
+    // Shift-and-Add: Rs[i]==1 이면 l_operand << i 를 누산
+    `ALU_MUL: begin
+        mul_temp = 32'b0;
+        for (i = 0; i < 16; i = i + 1) begin
+            if (r_operand[i])
+                mul_temp = mul_temp + ({16'b0, l_operand} << i);
+        end
+        alu_result0 = mul_temp[15:0];
+        alu_result1 = mul_temp[31:16];
+    end
+
+    // MULB : alu_result0 = Rd[7:0] * Rs[7:0] (16-bit)
+    // Shift-and-Add: 8비트 기준
+    `ALU_MULB: begin
+        mul_temp = 32'b0;
+        for (i = 0; i < 8; i = i + 1) begin
+            if (r_operand[i])
+                mul_temp = mul_temp + ({24'b0, l_operand[7:0]} << i);
+        end
+        alu_result0 = mul_temp[15:0];
+    end
+
+    // DIV : alu_result0 = 몫(16-bit), alu_result1 = 나머지(16-bit)
+    // Shift-and-Subtract (Restoring Division)
+    `ALU_DIV: begin
         quotient  = 16'b0;
         divisor   = r_operand;
         remainder = 17'b0;
-
-        if(divisor != 0) begin
-
-            for(i=15; i>=0; i=i-1) begin
-
-                remainder =
-                {remainder[15:0], l_operand[i]};
-
-                if(remainder >= {1'b0, divisor}) begin
-
-                    remainder =
-                    remainder - {1'b0, divisor};
-
+        if (divisor != 0) begin
+            for (i = 15; i >= 0; i = i - 1) begin
+                remainder = {remainder[15:0], l_operand[i]};
+                if (remainder >= {1'b0, divisor}) begin
+                    remainder   = remainder - {1'b0, divisor};
                     quotient[i] = 1'b1;
-
-                end
-
-                else begin
-
+                end else begin
                     quotient[i] = 1'b0;
-
                 end
             end
-
             alu_result0 = quotient;
             alu_result1 = remainder[15:0];
-
-        end
-
-        else begin
-
+        end else begin
             alu_result0 = 16'hFFFF;
             alu_result1 = 16'hFFFF;
-
         end
-
     end
 
-    // MOD
-    5'b00110: begin
+    // DIVB : alu_result0[7:0] = 몫(8-bit), alu_result1[7:0] = 나머지
+    // Shift-and-Subtract: 8비트 기준
+    `ALU_DIVB: begin
+        quotient  = 16'b0;
+        divisor   = {8'b0, r_operand[7:0]};
+        remainder = 17'b0;
+        if (divisor != 0) begin
+            for (i = 7; i >= 0; i = i - 1) begin
+                remainder = {remainder[15:0], l_operand[i]};
+                if (remainder >= {1'b0, divisor}) begin
+                    remainder   = remainder - {1'b0, divisor};
+                    quotient[i] = 1'b1;
+                end else begin
+                    quotient[i] = 1'b0;
+                end
+            end
+            alu_result0 = {l_operand[15:8], quotient[7:0]};
+            alu_result1 = {8'b0, remainder[7:0]};
+        end else begin
+            alu_result0 = 16'hFFFF;
+            alu_result1 = 16'hFFFF;
+        end
+    end
 
+    // MOD : alu_result0 = 나머지(16-bit)
+    // Shift-and-Subtract (Restoring Division), 나머지만 반환
+    `ALU_MOD: begin
         quotient  = 16'b0;
         divisor   = r_operand;
         remainder = 17'b0;
-
-        if(divisor != 0) begin
-
-            for(i=15; i>=0; i=i-1) begin
-
-                remainder =
-                {remainder[15:0], l_operand[i]};
-
-                if(remainder >= {1'b0, divisor}) begin
-
-                    remainder =
-                    remainder - {1'b0, divisor};
-
+        if (divisor != 0) begin
+            for (i = 15; i >= 0; i = i - 1) begin
+                remainder = {remainder[15:0], l_operand[i]};
+                if (remainder >= {1'b0, divisor}) begin
+                    remainder   = remainder - {1'b0, divisor};
                     quotient[i] = 1'b1;
-
-                end
-
-                else begin
-
+                end else begin
                     quotient[i] = 1'b0;
-
                 end
             end
-
             alu_result0 = remainder[15:0];
-
-        end
-
-        else begin
-
+        end else begin
             alu_result0 = 16'hFFFF;
-
         end
-
     end
 
-    // CMP
-    // 결과 저장 없이 Flag만 갱신
-    5'b00111: begin
-
-        temp = l_operand - r_operand;
-
-        alu_result0 = temp[15:0];
-
-        cf = temp[16];
-
-        vf = ((l_operand[15] ^ r_operand[15])) &
-             (l_operand[15] ^ alu_result0[15]);
-
+    // MODB : alu_result0[7:0] = 나머지(8-bit), 상위 바이트 유지
+    // Shift-and-Subtract: 8비트 기준
+    `ALU_MODB: begin
+        quotient  = 16'b0;
+        divisor   = {8'b0, r_operand[7:0]};
+        remainder = 17'b0;
+        if (divisor != 0) begin
+            for (i = 7; i >= 0; i = i - 1) begin
+                remainder = {remainder[15:0], l_operand[i]};
+                if (remainder >= {1'b0, divisor}) begin
+                    remainder   = remainder - {1'b0, divisor};
+                    quotient[i] = 1'b1;
+                end else begin
+                    quotient[i] = 1'b0;
+                end
+            end
+            alu_result0 = {l_operand[15:8], remainder[7:0]};
+        end else begin
+            alu_result0 = 16'hFFFF;
+        end
     end
-
-
-    // AND
-    5'b01000: begin
-
-        alu_result0 = l_operand & r_operand;
-
-    end
-
-    // OR
-    5'b01001: begin
-
-        alu_result0 = l_operand | r_operand;
-
-    end
-
-    // XOR
-    5'b01010: begin
-
-        alu_result0 = l_operand ^ r_operand;
-
-    end
-
-    // NOT
-    5'b01011: begin
-
-        alu_result0 = ~l_operand;
-
-    end
-
-
-    // SHL
-    5'b01100: begin
-
-        alu_result0 = l_operand << 1;
-
-        cf = l_operand[15];
-
-    end
-
-    // SHR
-    5'b01101: begin
-
-        alu_result0 = l_operand >> 1;
-
-        cf = l_operand[0];
-
-    end
-
 
     default: begin
-
         alu_result0 = 16'b0;
         alu_result1 = 16'b0;
-
     end
 
     endcase
 
-
+    // 공통 ZF / NF 갱신 
     zf = (alu_result0 == 16'b0);
-
-   
     nf = alu_result0[15];
 
 end
 
 endmodule
-
-// 참고용
-/*module alu(
-
-    input wire [15:0] l_operand,
-    input wire [15:0] r_operand,
-
-    input wire [5:0]  alu_sel,   // [수정] 4'b → 6'b 확장 (연산 수 증가)
-    input wire        cf_in,     // [추가] ADDC / SUBC 계열 carry 입력
-    input wire        exe_32,
-
-    output reg [15:0] alu_result0,
-    output reg [15:0] alu_result1,
-
-    output reg zf,
-    output reg cf,
-    output reg nf,
-    output reg vf
-
-);
-
-// ─────────────────────────────────────────────────
-// alu_sel 인코딩 상수
-// ─────────────────────────────────────────────────
-// Arithmetic (16-bit)
-localparam ADD    = 6'd0;
-localparam ADDC   = 6'd1;   // [추가]
-localparam ADDB   = 6'd2;   // [추가] byte
-localparam ADDBC  = 6'd3;   // [추가] byte + carry
-localparam SUB    = 6'd4;
-localparam SUBC   = 6'd5;   // [추가]
-localparam SUBB   = 6'd6;   // [추가] byte
-localparam SUBBC  = 6'd7;   // [추가] byte - carry
-// Mul / Div / Mod
-localparam MUL    = 6'd8;
-localparam MULB   = 6'd9;   // [추가] byte
-localparam DIV    = 6'd10;
-localparam DIVB   = 6'd11;  // [추가] byte
-localparam MOD    = 6'd12;
-localparam MODB   = 6'd13;  // [추가] byte
-// Unary
-localparam INC    = 6'd14;  // [추가]
-localparam DEC    = 6'd15;  // [추가]
-localparam NEC    = 6'd16;  // [추가] 2의 보수 부정
-localparam NOT_OP = 6'd17;
-// Logical
-localparam AND_OP = 6'd18;
-localparam OR_OP  = 6'd19;
-localparam XOR_OP = 6'd20;
-localparam NOR_OP = 6'd21;  // [추가]
-// Compare
-localparam CMP    = 6'd22;  // [추가] 플래그만 갱신
-// Shift / Rotate (by 1)
-localparam SHL    = 6'd23;
-localparam SHR    = 6'd24;
-localparam ASL    = 6'd25;  // [추가] 산술 좌시프트
-localparam ASR    = 6'd26;  // [추가] 산술 우시프트
-localparam ROL    = 6'd27;  // [추가] 좌회전
-localparam ROR    = 6'd28;  // [추가] 우회전
-// Shift / Rotate (by #value, r_operand[3:0] 사용)
-localparam SHL_N  = 6'd29;  // [추가]
-localparam SHR_N  = 6'd30;  // [추가]
-localparam ASL_N  = 6'd31;  // [추가]
-localparam ASR_N  = 6'd32;  // [추가]
-localparam ROL_N  = 6'd33;  // [추가]
-localparam ROR_N  = 6'd34;  // [추가]
-
-// ─────────────────────────────────────────────────
-// 내부 변수
-// ─────────────────────────────────────────────────
-reg [16:0] temp;
-reg [8:0]  temp_b;
-
-reg [15:0] quotient;
-reg [15:0] divisor;
-reg [16:0] remainder;
-
-reg [7:0]  quotient_b;   // [추가] byte 나눗셈용
-reg [7:0]  divisor_b;
-reg [8:0]  remainder_b;
-
-reg [3:0]  shamt;        // [추가] shift amount
-
-integer i;
-
-always @(*) begin
-
-    alu_result0 = 16'b0;
-    alu_result1 = 16'b0;
-    zf          = 1'b0;
-    cf          = 1'b0;
-    nf          = 1'b0;
-    vf          = 1'b0;
-    temp        = 17'b0;
-    temp_b      = 9'b0;
-    quotient    = 16'b0;
-    divisor     = 16'b0;
-    remainder   = 17'b0;
-    quotient_b  = 8'b0;
-    divisor_b   = 8'b0;
-    remainder_b = 9'b0;
-    shamt       = 4'b0;
-
-    case(alu_sel)
-
-    // ─────────────────────────────────────────────
-    // ADD 계열
-    // ─────────────────────────────────────────────
-    ADD: begin
-        temp        = {1'b0, l_operand} + {1'b0, r_operand};
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (~(l_operand[15] ^ r_operand[15])) & (l_operand[15] ^ alu_result0[15]);
-    end
-
-    ADDC: begin  // Rd + Rs + carry_in
-        temp        = {1'b0, l_operand} + {1'b0, r_operand} + {16'b0, cf_in};
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (~(l_operand[15] ^ r_operand[15])) & (l_operand[15] ^ alu_result0[15]);
-    end
-
-    ADDB: begin  // Rd[7:0] + Rs[7:0], 상위 바이트 보존
-        temp_b      = {1'b0, l_operand[7:0]} + {1'b0, r_operand[7:0]};
-        alu_result0 = {l_operand[15:8], temp_b[7:0]};
-        cf = temp_b[8];
-        vf = (~(l_operand[7] ^ r_operand[7])) & (l_operand[7] ^ temp_b[7]);
-    end
-
-    ADDBC: begin  // Rd[7:0] + Rs[7:0] + carry_in
-        temp_b      = {1'b0, l_operand[7:0]} + {1'b0, r_operand[7:0]} + {8'b0, cf_in};
-        alu_result0 = {l_operand[15:8], temp_b[7:0]};
-        cf = temp_b[8];
-        vf = (~(l_operand[7] ^ r_operand[7])) & (l_operand[7] ^ temp_b[7]);
-    end
-
-    // ─────────────────────────────────────────────
-    // SUB 계열
-    // ─────────────────────────────────────────────
-    SUB: begin
-        temp        = {1'b0, l_operand} - {1'b0, r_operand};
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
-    end
-
-    SUBC: begin  // Rd - Rs - carry_in
-        temp        = {1'b0, l_operand} - {1'b0, r_operand} - {16'b0, cf_in};
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
-    end
-
-    SUBB: begin  // Rd[7:0] - Rs[7:0], 상위 바이트 보존
-        temp_b      = {1'b0, l_operand[7:0]} - {1'b0, r_operand[7:0]};
-        alu_result0 = {l_operand[15:8], temp_b[7:0]};
-        cf = temp_b[8];
-        vf = (l_operand[7] ^ r_operand[7]) & (l_operand[7] ^ temp_b[7]);
-    end
-
-    SUBBC: begin  // Rd[7:0] - Rs[7:0] - carry_in
-        temp_b      = {1'b0, l_operand[7:0]} - {1'b0, r_operand[7:0]} - {8'b0, cf_in};
-        alu_result0 = {l_operand[15:8], temp_b[7:0]};
-        cf = temp_b[8];
-        vf = (l_operand[7] ^ r_operand[7]) & (l_operand[7] ^ temp_b[7]);
-    end
-
-    // ─────────────────────────────────────────────
-    // MUL / MULB  (부호 없는 곱셈 - 의도된 설계)
-    // ─────────────────────────────────────────────
-    MUL: begin  // [수정] {16'b0, l_operand} << i 로 비트 폭 명시
-        alu_result0 = 16'b0;
-        alu_result1 = 16'b0;
-        for(i = 0; i < 16; i = i + 1) begin
-            if(r_operand[i]) begin
-                {alu_result1, alu_result0} =
-                    {alu_result1, alu_result0} + ({16'b0, l_operand} << i);
-            end
-        end
-    end
-
-    MULB: begin  // 8×8 → 16, 결과는 alu_result0
-        alu_result0 = 16'b0;
-        for(i = 0; i < 8; i = i + 1) begin
-            if(r_operand[i]) begin
-                alu_result0 = alu_result0 + ({8'b0, l_operand[7:0]} << i);
-            end
-        end
-    end
-
-    // ─────────────────────────────────────────────
-    // DIV / DIVB  (부호 없는 나눗셈 - 의도된 설계)
-    // ─────────────────────────────────────────────
-    DIV: begin  // [수정] remainder 비교 명시: {1'b0, divisor}
-        quotient  = 16'b0;
-        divisor   = r_operand;
-        remainder = 17'b0;
-        if(divisor != 16'b0) begin
-            for(i = 15; i >= 0; i = i - 1) begin
-                remainder = {remainder[15:0], l_operand[i]};
-                if(remainder >= {1'b0, divisor}) begin
-                    remainder   = remainder - {1'b0, divisor};
-                    quotient[i] = 1'b1;
-                end else begin
-                    quotient[i] = 1'b0;
-                end
-            end
-            alu_result0 = quotient;
-            alu_result1 = remainder[15:0];
-        end else begin
-            alu_result0 = 16'hFFFF;
-            alu_result1 = 16'hFFFF;
-        end
-    end
-
-    DIVB: begin  // 8÷8, 몫 → alu_result0[7:0], 나머지 → alu_result1[7:0]
-        quotient_b  = 8'b0;
-        divisor_b   = r_operand[7:0];
-        remainder_b = 9'b0;
-        if(divisor_b != 8'b0) begin
-            for(i = 7; i >= 0; i = i - 1) begin
-                remainder_b = {remainder_b[7:0], l_operand[i]};
-                if(remainder_b >= {1'b0, divisor_b}) begin
-                    remainder_b  = remainder_b - {1'b0, divisor_b};
-                    quotient_b[i] = 1'b1;
-                end else begin
-                    quotient_b[i] = 1'b0;
-                end
-            end
-            alu_result0 = {8'b0, quotient_b};
-            alu_result1 = {8'b0, remainder_b[7:0]};
-        end else begin
-            alu_result0 = 16'hFFFF;
-            alu_result1 = 16'hFFFF;
-        end
-    end
-
-    // ─────────────────────────────────────────────
-    // MOD / MODB
-    // ─────────────────────────────────────────────
-    MOD: begin
-        quotient  = 16'b0;
-        divisor   = r_operand;
-        remainder = 17'b0;
-        if(divisor != 16'b0) begin
-            for(i = 15; i >= 0; i = i - 1) begin
-                remainder = {remainder[15:0], l_operand[i]};
-                if(remainder >= {1'b0, divisor}) begin
-                    remainder   = remainder - {1'b0, divisor};
-                    quotient[i] = 1'b1;
-                end else begin
-                    quotient[i] = 1'b0;
-                end
-            end
-            alu_result0 = remainder[15:0];
-        end else begin
-            alu_result0 = 16'hFFFF;
-        end
-    end
-
-    MODB: begin
-        quotient_b  = 8'b0;
-        divisor_b   = r_operand[7:0];
-        remainder_b = 9'b0;
-        if(divisor_b != 8'b0) begin
-            for(i = 7; i >= 0; i = i - 1) begin
-                remainder_b = {remainder_b[7:0], l_operand[i]};
-                if(remainder_b >= {1'b0, divisor_b}) begin
-                    remainder_b  = remainder_b - {1'b0, divisor_b};
-                    quotient_b[i] = 1'b1;
-                end else begin
-                    quotient_b[i] = 1'b0;
-                end
-            end
-            alu_result0 = {8'b0, remainder_b[7:0]};
-        end else begin
-            alu_result0 = 16'hFFFF;
-        end
-    end
-
-    // ─────────────────────────────────────────────
-    // INC / DEC / NEC / NOT
-    // ─────────────────────────────────────────────
-    INC: begin
-        temp        = {1'b0, l_operand} + 17'd1;
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (~l_operand[15]) & alu_result0[15];  // 양수 → 음수 overflow
-    end
-
-    DEC: begin
-        temp        = {1'b0, l_operand} - 17'd1;
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = l_operand[15] & (~alu_result0[15]);  // 음수 → 양수 overflow
-    end
-
-    NEC: begin  // 2의 보수 부정: ~l_operand + 1
-        temp        = {1'b0, ~l_operand} + 17'd1;
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (l_operand == 16'h8000);  // 0x8000 부정 시 overflow
-    end
-
-    NOT_OP: begin
-        alu_result0 = ~l_operand;
-    end
-
-    // ─────────────────────────────────────────────
-    // AND / OR / XOR / NOR
-    // ─────────────────────────────────────────────
-    AND_OP: alu_result0 = l_operand & r_operand;
-    OR_OP:  alu_result0 = l_operand | r_operand;
-    XOR_OP: alu_result0 = l_operand ^ r_operand;
-    NOR_OP: alu_result0 = ~(l_operand | r_operand);
-
-    // ─────────────────────────────────────────────
-    // CMP  (플래그만 갱신 → 디코더에서 reg_wr_en=0 처리)
-    // ─────────────────────────────────────────────
-    CMP: begin
-        temp        = {1'b0, l_operand} - {1'b0, r_operand};
-        alu_result0 = temp[15:0];
-        cf = temp[16];
-        vf = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ temp[15]);
-    end
-
-    // ─────────────────────────────────────────────
-    // Shift / Rotate  (by 1)
-    // ─────────────────────────────────────────────
-    SHL: begin  // 논리 좌시프트
-        alu_result0 = l_operand << 1;
-        cf = l_operand[15];
-    end
-
-    SHR: begin  // 논리 우시프트
-        alu_result0 = l_operand >> 1;
-        cf = l_operand[0];
-    end
-
-    ASL: begin  // 산술 좌시프트 (부호 변화 → vf)
-        alu_result0 = l_operand << 1;
-        cf = l_operand[15];
-        vf = l_operand[15] ^ l_operand[14];
-    end
-
-    ASR: begin  // 산술 우시프트 (부호 비트 유지)
-        alu_result0 = {l_operand[15], l_operand[15:1]};
-        cf = l_operand[0];
-    end
-
-    ROL: begin  // 좌회전
-        alu_result0 = {l_operand[14:0], l_operand[15]};
-        cf = l_operand[15];
-    end
-
-    ROR: begin  // 우회전
-        alu_result0 = {l_operand[0], l_operand[15:1]};
-        cf = l_operand[0];
-    end
-
-    // ─────────────────────────────────────────────
-    // Shift / Rotate  (by #value, r_operand[3:0])
-    // cf = 시프트 시 마지막으로 밀려난 비트
-    // ─────────────────────────────────────────────
-    SHL_N: begin
-        shamt = r_operand[3:0];
-        if(shamt == 4'b0) begin
-            alu_result0 = l_operand;
-        end else begin
-            alu_result0    = l_operand << shamt;
-            cf = l_operand[16 - shamt];  // 마지막으로 밀려난 비트
-        end
-    end
-
-    SHR_N: begin
-        shamt = r_operand[3:0];
-        if(shamt == 4'b0) begin
-            alu_result0 = l_operand;
-        end else begin
-            alu_result0 = l_operand >> shamt;
-            cf = l_operand[shamt - 1];
-        end
-    end
-
-    ASL_N: begin
-        shamt = r_operand[3:0];
-        if(shamt == 4'b0) begin
-            alu_result0 = l_operand;
-        end else begin
-            alu_result0 = l_operand << shamt;
-            cf = l_operand[16 - shamt];
-            vf = l_operand[15] ^ alu_result0[15];  // 부호 변화
-        end
-    end
-
-    ASR_N: begin
-        shamt = r_operand[3:0];
-        if(shamt == 4'b0) begin
-            alu_result0 = l_operand;
-        end else begin
-            alu_result0 = $signed(l_operand) >>> shamt;  // 부호 비트 유지
-            cf = l_operand[shamt - 1];
-        end
-    end
-
-    ROL_N: begin
-        shamt = r_operand[3:0];
-        if(shamt == 4'b0) begin
-            alu_result0 = l_operand;
-        end else begin
-            alu_result0 = (l_operand << shamt) | (l_operand >> (16 - shamt));
-            cf = l_operand[16 - shamt];
-        end
-    end
-
-    ROR_N: begin
-        shamt = r_operand[3:0];
-        if(shamt == 4'b0) begin
-            alu_result0 = l_operand;
-        end else begin
-            alu_result0 = (l_operand >> shamt) | (l_operand << (16 - shamt));
-            cf = l_operand[shamt - 1];
-        end
-    end
-
-    default: begin
-        alu_result0 = 16'b0;
-        alu_result1 = 16'b0;
-    end
-
-    endcase
-
-    // ─────────────────────────────────────────────
-    // 공통 플래그 (case 이후 항상 갱신)
-    // ─────────────────────────────────────────────
-    zf = (alu_result0 == 16'b0);
-    nf = alu_result0[15];
-
-end
-
-endmodule*/

@@ -17,3 +17,8 @@ push의 경우, sp_in의 값을 -1한 다음 data memory에 접근해야 한다.
 dcsb_pin : active low, chip select
 drdb_pin : negedge , memory read enable
 dwrb_pin : negedge , memory write enable
+
+data bus에서 생성하는 외부 memory제어신호의 경우, 타이밍제어를 받지 않는
+상시작동 제어신호이므로, 메모라 접근이 끝나면 T5에서 초기화 시켜줘야한다는 
+점이 내부 CPU에서 타이밍제어에 따라 동작하는 instructin decoder에서의 
+제어신호와의 차이점이다.

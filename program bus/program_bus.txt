@@ -1,0 +1,5 @@
+program counter에서 pc입력 -> pbus in address로 memory에 주소 전송
+-> memory에서 명령어 program data입력 -> pbus in data로 instruction
+register로 전송
+
+wr_en신호는 instructin register에서 입력
