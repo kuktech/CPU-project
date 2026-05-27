@@ -1,9 +1,9 @@
 module alu(
-input wire instruction[15:0],
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
 input wire [4:0] alu_sel,    // 5비트 opcode (명령어[15:11])
+input wire [4:0] alu_sop,     // 5비트 sub-opcode
 input wire [7:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
 
 input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
@@ -20,8 +20,8 @@ output reg ltf   // Less-Than flag    (CMP 전용)
 
 );
 
-wire [4:0] sop;
-assign = instruction[4:0];
+
+
 /*
 =========================================================
 alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
@@ -100,11 +100,11 @@ alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
 `define AR_DIVB     5'b011_10
 `define AR_MODB     5'b011_11
 
-// ── LOGIC 그룹 내 sop2 (2-bit) ───────────────────────────
-`define LG_AND      2'b000_00
-`define LG_OR       2'b000_01
-`define LG_XOR      2'b000_10
-`define LG_NOR      2'b000_11
+// ── LOGIC 그룹 내 sop2 (2-bit)지만 sop을 합쳤기에 sop1 무시하고 5비트로 바꿈 ───────────────────────────
+`define LG_AND      5'b000_00
+`define LG_OR       5'b000_01
+`define LG_XOR      5'b000_10
+`define LG_NOR      5'b000_11
 
 // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
@@ -141,7 +141,7 @@ always @(*) begin
     // DATA_SHIFT 그룹 (opcode = 00100)
     // =========================================================
     `GRP_DATA_SHIFT: begin
-        case (sop)
+        case (alu_sop)
 
         /* 여기서부터 찐 시작 */
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
@@ -292,7 +292,7 @@ always @(*) begin
     // ARITH 그룹 (opcode = 00101)
     // =========================================================
     `GRP_ARITH: begin
-        case (sop)
+        case (alu_sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Arithmetic – 16-bit
@@ -488,7 +488,7 @@ always @(*) begin
     // sop1 무시, sop2만으로 구분
     // =========================================================
     `GRP_LOGIC: begin
-        case (sop)
+        case (alu_sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Logical
