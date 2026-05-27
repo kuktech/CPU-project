@@ -20,8 +20,8 @@ output reg ltf   // Less-Than flag    (CMP 전용)
 
 );
 wire [4:0] sop;
-assign = instruction[4:0];
-sdfsf
+assign sop = instruction[4:0];
+
 /*
 =========================================================
 alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
@@ -291,7 +291,7 @@ always @(*) begin
     // ARITH 그룹 (opcode = 00101)
     // =========================================================
     `GRP_ARITH: begin
-        case ({sop1, sop2})
+        case (sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Arithmetic – 16-bit
@@ -487,7 +487,7 @@ always @(*) begin
     // sop1 무시, sop2만으로 구분
     // =========================================================
     `GRP_LOGIC: begin
-        case (sop2)
+        case (sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Logical
