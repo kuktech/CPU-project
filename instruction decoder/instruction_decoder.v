@@ -16,7 +16,10 @@ module instruction_decoder (
     output reg sp_wr,
     output reg mem_rd,
     output reg mem_wr,
-    output reg halt
+    output reg halt,
+
+    output wire sop1,
+    output wire sop2
 );
 wire [9:0] operation = {instruction[15:11],instruction[4:0]};
 wire [2:0] rd     = instruction[10:8];

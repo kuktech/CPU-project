@@ -1,4 +1,5 @@
 module alu(
+input wire instruction[15:0],
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
@@ -20,8 +21,7 @@ output reg ltf   // Less-Than flag    (CMP 전용)
 );
 
 wire [4:0] sop;
-assign sop = instruction[4:0];
-
+assign = instruction[4:0];
 /*
 =========================================================
 alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
