@@ -1,9 +1,11 @@
+`include "1.defines/define.vh"
+
 module alu(
-input wire instruction[15:0],
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
 input wire [4:0] alu_sel,    // 5비트 opcode (명령어[15:11])
+input wire [4:0] alu_sop,     // 5비트 sub-opcode
 input wire [7:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
 
 input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
@@ -20,9 +22,8 @@ output reg ltf   // Less-Than flag    (CMP 전용)
 
 );
 
-wire [4:0] sop;
-assign = instruction[4:0];
-sdfsf
+
+
 /*
 =========================================================
 alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
@@ -59,55 +60,9 @@ alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
 =========================================================
 */
 
-// ── alu_sel 그룹 코드 ─────────────────────────────────────
-`define GRP_DATA_SHIFT  5'b00100
-`define GRP_ARITH       5'b00101
-`define GRP_LOGIC       5'b00110
-`define GRP_CMP         5'b00111
 
-// ── DATA 그룹 내 {sop} ──────────────────────
-`define DS_INC      5'b000_00
-`define DS_DEC      5'b000_01
-`define DS_NEC      5'b000_10
-`define DS_NOT      5'b000_11
 
-// ── SHIFT & Rotate 그룹 내 {sop} ──────────────────────
-`define DS_SHL      5'b001_00
-`define DS_SHR      5'b001_01
-`define DS_ASL      5'b001_10
-`define DS_ASR      5'b001_11
-`define DS_ROL      5'b010_00
-`define DS_ROR      5'b010_01
-`define DS_SHL_V    5'b101_00
-`define DS_SHR_V    5'b101_01
-`define DS_ASL_V    5'b101_10
-`define DS_ASR_V    5'b101_11
-`define DS_ROL_V    5'b110_00
-`define DS_ROR_V    5'b110_01
 
-// ── ARITH 그룹 내 {sop} ───────────────────────────
-`define AR_ADD      5'b000_00
-`define AR_ADDC     5'b000_01
-`define AR_ADDB     5'b000_10
-`define AR_ADDBC    5'b000_11
-`define AR_SUB      5'b001_00
-`define AR_SUBC     5'b001_01
-`define AR_SUBB     5'b001_10
-`define AR_SUBBC    5'b001_11
-`define AR_MUL      5'b010_00
-`define AR_MULB     5'b010_10
-`define AR_DIV      5'b011_00
-`define AR_MOD      5'b011_01
-`define AR_DIVB     5'b011_10
-`define AR_MODB     5'b011_11
-
-// ── LOGIC 그룹 내 sop2 (2-bit) ───────────────────────────
-`define LG_AND      2'b000_00
-`define LG_OR       2'b000_01
-`define LG_XOR      2'b000_10
-`define LG_NOR      2'b000_11
-
-// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
 reg [16:0] temp;
 reg [31:0] mul_temp;
@@ -142,7 +97,7 @@ always @(*) begin
     // DATA_SHIFT 그룹 (opcode = 00100)
     // =========================================================
     `GRP_DATA_SHIFT: begin
-        case (sop)
+        case (alu_sop)
 
         /* 여기서부터 찐 시작 */
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
@@ -293,7 +248,7 @@ always @(*) begin
     // ARITH 그룹 (opcode = 00101)
     // =========================================================
     `GRP_ARITH: begin
-        case (sop)
+        case (alu_sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Arithmetic – 16-bit
@@ -489,7 +444,7 @@ always @(*) begin
     // sop1 무시, sop2만으로 구분
     // =========================================================
     `GRP_LOGIC: begin
-        case (sop)
+        case (alu_sop)
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Logical

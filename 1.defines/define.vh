@@ -69,3 +69,52 @@
 `define BRGT 10'b1100100000
 `define BRNLT 10'b1101000000
 `define BRLT 10'b1101100000
+
+
+// ── alu_sel 그룹 코드 ─────────────────────────────────────
+`define GRP_DATA_SHIFT  5'b00100
+`define GRP_ARITH       5'b00101
+`define GRP_LOGIC       5'b00110
+`define GRP_CMP         5'b00111
+
+// ── DATA 그룹 내 {sop} ──────────────────────
+`define DS_INC      5'b000_00
+`define DS_DEC      5'b000_01
+`define DS_NEC      5'b000_10
+`define DS_NOT      5'b000_11
+
+// ── SHIFT & Rotate 그룹 내 {sop} ──────────────────────
+`define DS_SHL      5'b001_00
+`define DS_SHR      5'b001_01
+`define DS_ASL      5'b001_10
+`define DS_ASR      5'b001_11
+`define DS_ROL      5'b010_00
+`define DS_ROR      5'b010_01
+`define DS_SHL_V    5'b101_00
+`define DS_SHR_V    5'b101_01
+`define DS_ASL_V    5'b101_10
+`define DS_ASR_V    5'b101_11
+`define DS_ROL_V    5'b110_00
+`define DS_ROR_V    5'b110_01
+
+// ── ARITH 그룹 내 {sop} ───────────────────────────
+`define AR_ADD      5'b000_00
+`define AR_ADDC     5'b000_01
+`define AR_ADDB     5'b000_10
+`define AR_ADDBC    5'b000_11
+`define AR_SUB      5'b001_00
+`define AR_SUBC     5'b001_01
+`define AR_SUBB     5'b001_10
+`define AR_SUBBC    5'b001_11
+`define AR_MUL      5'b010_00
+`define AR_MULB     5'b010_10
+`define AR_DIV      5'b011_00
+`define AR_MOD      5'b011_01
+`define AR_DIVB     5'b011_10
+`define AR_MODB     5'b011_11
+
+// ── LOGIC 그룹 내 sop2 (2-bit)지만 sop을 합쳤기에 sop1 무시하고 5비트로 바꿈 ───────────────────────────
+`define LG_AND      5'b000_00
+`define LG_OR       5'b000_01
+`define LG_XOR      5'b000_10
+`define LG_NOR      5'b000_11
