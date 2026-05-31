@@ -22,7 +22,10 @@ module data_bus(
     output reg  dcsb_pin,
 
     output reg [15:0] mbr,
-    output reg [15:0] mar
+    output reg [15:0] mar,
+
+    output reg[15:0] dbus_in_data,
+    output reg[15:0] dbus_in_pc
 );
 
 reg drdb;
@@ -54,7 +57,11 @@ always @(*) begin
                       dcsb = 1'b0;
                       dwrb = 1'b0;
              end
-     
+            default: begin
+                    drdb = 1'b1;
+                    dwrb = 1'b1;
+                    dcsb = 1'b1;
+            end
         endcase          
 end
 
@@ -65,6 +72,8 @@ always @(posedge clock or negedge resetb) begin
         dcsb_pin <= 1'b1;
         mar <= 16'b0;
         mbr <= 16'b0;
+        dbus_in_data <=16'b0;
+        dbus_in_pc <= 16'b0;
     end
     else if(t2) begin
          drdb_pin <= drdb;
@@ -95,10 +104,10 @@ always @(posedge clock or negedge resetb) begin
     else if(t4) begin 
          case({dbus_access,dbus_addr_sel,dbus_data_sel}) 
             6'b100000:begin   //load
-                      mbr <= dmem_rdata;
+                      dbus_in_data <= dmem_rdata;
                       end  
             6'b101100:begin//pop , ret
-                      mbr <= dmem_rdata;
+                      dbus_in_data <= dmem_rdata;
                       end  
         endcase 
     end

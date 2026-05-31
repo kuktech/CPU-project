@@ -13,6 +13,8 @@ input wire operand_en,
 
 input wire ld_value_en,
 
+input wire move,
+
 input wire sp_rd_en,
 input wire sp_wr_en,
 
@@ -46,6 +48,22 @@ reg [15:0] r5 = 16'b0;
 reg [15:0] r6 = 16'b0; 
 reg [15:0] r7 = 16'b0; 
 
+reg [15:0] move_src = 16'b0;
+
+always @(*) begin
+    case (src_reg)
+        3'b000: move_src = r0;
+        3'b001: move_src = r1;
+        3'b010: move_src = r2;
+        3'b011: move_src = r3;
+        3'b100: move_src = r4;
+        3'b101: move_src= r5;
+        3'b110: move_src= r6;
+        3'b111: move_src = r7;
+        default: move_src = 16'b0;
+    endcase
+end
+
 always @(posedge clock or negedge reset_b) begin
     if(!reset_b)begin
         r0 <= 16'b0;
@@ -56,6 +74,7 @@ always @(posedge clock or negedge reset_b) begin
         r5 <= 16'b0;
         r6 <= 16'b0;
         r7 <= 16'b0;
+        move_src <= 16'b0;
     end
     else if(t2)begin
      if(mem_wr_en)begin
@@ -70,7 +89,7 @@ always @(posedge clock or negedge reset_b) begin
             3'b111: mar <= r7;
             default: mar <= 16'b0;
         endcase
-          case (src_reg)
+        case (src_reg)
             3'b000: mbr <= r0; 
             3'b001: mbr <= r1;
             3'b010: mbr <= r2;
@@ -134,47 +153,7 @@ always @(posedge clock or negedge reset_b) begin
      end
     end
      else if (t5 && reg_wr_en) begin
-        if(exe_32 && reg_dt_sel)begin
-         case (des_reg)
-            3'b000: {r0,r1} <= {alu_result0,alu_result1};
-            3'b001: {r0,r1} <= {alu_result0,alu_result1};
-            3'b010: {r2,r3} <= {alu_result0,alu_result1};
-            3'b011: {r2,r3} <= {alu_result0,alu_result1};
-            3'b100: {r4,r5} <= {alu_result0,alu_result1};
-            3'b101: {r4,r5} <= {alu_result0,alu_result1};
-            3'b110: {r6,r7} <= {alu_result0,alu_result1};
-            3'b111: {r6,r7} <= {alu_result0,alu_result1};
-            default: {r0,r1} <= {alu_result0,alu_result1};
-        endcase
-        end
-    
-     else if(reg_dt_sel)begin
-        case (des_reg)
-            3'b000: r0 <= alu_result0;
-            3'b001: r1 <= alu_result0;
-            3'b010: r2 <= alu_result0;
-            3'b011: r3 <= alu_result0;
-            3'b100: r4 <= alu_result0;
-            3'b101: r5 <= alu_result0;
-            3'b110: r6 <= alu_result0;
-            3'b111: r7 <= alu_result0;
-            default: r0 <= alu_result0;
-        endcase
-     end
-     else if(!reg_dt_sel)begin
-        case (des_reg)
-            3'b000: r0 <= dbus_in_data;
-            3'b001: r1 <= dbus_in_data;
-            3'b010: r2 <= dbus_in_data;
-            3'b011: r3 <= dbus_in_data;
-            3'b100: r4 <= dbus_in_data;
-            3'b101: r5 <= dbus_in_data;
-            3'b110: r6 <= dbus_in_data;
-            3'b111: r7 <= dbus_in_data;
-            default: r0 <= dbus_in_data;
-        endcase
-     end
-     else if(ld_value_en)begin
+         if(ld_value_en)begin
          case (des_reg)
             3'b000: r0 <= {8'b00000,value};
             3'b001: r1 <= {8'b00000,value};
@@ -187,7 +166,49 @@ always @(posedge clock or negedge reset_b) begin
             default: r0 <= {8'b00000,value};
         endcase
      end
-      else if(sp_rd_en)begin
+     else if(move) begin
+        case (des_reg)
+            3'b000: r0 <= move_src;
+            3'b001: r1 <= move_src;
+            3'b010: r2 <= move_src;
+            3'b011: r3 <= move_src;
+            3'b100: r4 <= move_src;
+            3'b101: r5 <= move_src;
+            3'b110: r6 <= move_src;
+            3'b111: r7 <= move_src;
+            default: r0 <= move_src;
+        endcase
+     end
+        else if(reg_dt_sel)begin
+            if(exe_32)begin
+                case (des_reg)
+                    3'b000: {r0,r1} <= {alu_result0,alu_result1};
+                    3'b001: {r0,r1} <= {alu_result0,alu_result1};
+                    3'b010: {r2,r3} <= {alu_result0,alu_result1};
+                    3'b011: {r2,r3} <= {alu_result0,alu_result1};
+                    3'b100: {r4,r5} <= {alu_result0,alu_result1};
+                    3'b101: {r4,r5} <= {alu_result0,alu_result1};
+                    3'b110: {r6,r7} <= {alu_result0,alu_result1};
+                    3'b111: {r6,r7} <= {alu_result0,alu_result1};
+                    default: {r0,r1} <= {alu_result0,alu_result1};
+                endcase
+            end
+             else begin
+                case (des_reg)
+                    3'b000: r0 <= alu_result0;
+                    3'b001: r1 <= alu_result0;
+                    3'b010: r2 <= alu_result0;
+                    3'b011: r3 <= alu_result0;
+                    3'b100: r4 <= alu_result0;
+                    3'b101: r5 <= alu_result0;
+                    3'b110: r6 <= alu_result0;
+                    3'b111: r7 <= alu_result0;
+                    default: r0 <= alu_result0;
+                endcase
+            end
+        end
+     else if(!reg_dt_sel)begin 
+        if(sp_rd_en)begin
          case (des_reg)
             3'b000: r0 <= dbus_in_data;
             3'b001: r1 <= dbus_in_data;
@@ -199,6 +220,20 @@ always @(posedge clock or negedge reset_b) begin
             3'b111: r7 <= dbus_in_data;
             default: r0 <= dbus_in_data;
         endcase
+     end
+        else begin
+        case (des_reg)
+            3'b000: r0 <= dbus_in_data;
+            3'b001: r1 <= dbus_in_data;
+            3'b010: r2 <= dbus_in_data;
+            3'b011: r3 <= dbus_in_data;
+            3'b100: r4 <= dbus_in_data;
+            3'b101: r5 <= dbus_in_data;
+            3'b110: r6 <= dbus_in_data;
+            3'b111: r7 <= dbus_in_data;
+            default: r0 <= dbus_in_data;
+        endcase
+        end
      end
 end
 end

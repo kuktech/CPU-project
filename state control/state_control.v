@@ -2,6 +2,8 @@ module state_control(
 input wire clock,
 input wire resetb,
 
+input wire halt,
+
 output wire t1,
 output wire t2,
 output wire t3,
@@ -13,10 +15,13 @@ output wire pc_wr_en
 
 reg [4:0] rotator = 5'b10000;
  
-always @(posedge clock or negedge reset_b) begin
+always @(posedge clock or negedge resetb) begin
    
     if(!resetb)begin
         rotator <= 5'b10000;
+    end
+    else if(halt)begin
+        rotator <=5'b00000;
     end
     else begin
         case (rotator)

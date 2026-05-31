@@ -1,15 +1,11 @@
 state control에서 t2일때 명령어 decode,제어신호 생성
 
-op_group[4:0] : opcode, 이것으로 명령어 종류를 크게분류
-op_kind[N:0] : 세부 동작을 비트로 정의 , 다른 블록에는 이 신호가 전송됨
 enable은 1비트로 설정해 각각 이름을 정의해야 함.
 
 rd,rs,offset,value는 일단 변수를 정의해서 0을 저장하고, op group에
 따라서 instruction비트에서 맞는 비트를 대입.
 
 명령어가 비어있는 비트는 0으로 간주.
-
-op_group으로 1차 정의, 내부에서 sop1,2로 op_kind정의, 세부 제어신호 생성
 
 des_reg[3:0]
 src_reg[3:0]
@@ -27,13 +23,31 @@ always 구문을 2개로 나누어 작성.
    - 항상 현재 instruction을 보고 계산됨
    - always @(*) 안에서 매번 기본값 0으로 시작
    - 명령어에 해당하는 신호만 1로 set
+   - 내부 제어신호는 뒤에 dec붙임.
 
 2. control register 저장 출력
    - T2 clock rising에서 decoder 조합 출력을 저장
    - T3~T5 동안 유지
    - 다음 명령어의 T2에서 새 값으로 덮어쓰기
 
+operation 예외처리 해야 할 명령어들
+LDI Rd, #value
+CALL target
+BR / BRR
+모든 조건분기 BRxx
+Bit manipulate CLR/SET 계열
+
 sop코드가 빈칸으로 정의된 경우 0으로 간주한다.
 <System>
 NOP : 아무 명령도 수행하지 않는다.
-HALT : 
+HALT : 동작정지, halt신호 set, state control에 연결
+
+<Data transfer>
+LDI value : reg_wr_en신호 set, ld_value_en신호 set
+LDI Rs : reg_wr_en신호 set, mem_rd_en신호 set(register에 연결), 
+         dbus_access = 10, dbus_addr_sel = 00, data_bus_sel = 00(data bus에 연결)
+         data bus(dbus_in_data) - register(dbus_in_data)
+STI Rs : mem_wr_en신호 set
+         dbus_access = 11, dbus_addr_sel = 01, dbus_data_sel = 01
+         data bus(rs/rd data) - register(mar/mbr)
+MOVE : reg_wr_en신호 set, move신호 set
