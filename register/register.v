@@ -14,9 +14,11 @@ input wire operand_en,
 input wire ld_value_en,
 
 input wire move,
+input wire hxhg,
+input wire swap,
 
-input wire sp_rd_en,
-input wire sp_wr_en,
+input wire push,
+input wire pop,
 
 input wire t2,
 input wire t5,
@@ -34,8 +36,6 @@ input wire [7:0] value,
 output reg [15:0] r_operand,
 output reg [15:0] l_operand,
 
-output reg [15:0] push_rs,
-
 output reg [15:0] mar,
 output reg [15:0] mbr
 );
@@ -48,19 +48,31 @@ reg [15:0] r5 = 16'b0;
 reg [15:0] r6 = 16'b0; 
 reg [15:0] r7 = 16'b0; 
 
-reg [15:0] move_src = 16'b0;
+reg [15:0] temp_des = 16'b0;
+reg [15:0] temp_src = 16'b0;
 
 always @(*) begin
     case (src_reg)
-        3'b000: move_src = r0;
-        3'b001: move_src = r1;
-        3'b010: move_src = r2;
-        3'b011: move_src = r3;
-        3'b100: move_src = r4;
-        3'b101: move_src= r5;
-        3'b110: move_src= r6;
-        3'b111: move_src = r7;
-        default: move_src = 16'b0;
+        3'b000: temp_src = r0;
+        3'b001: temp_src = r1;
+        3'b010: temp_src = r2;
+        3'b011: temp_src = r3;
+        3'b100: temp_src = r4;
+        3'b101: temp_src= r5;
+        3'b110: temp_src= r6;
+        3'b111: temp_src = r7;
+        default: temp_src = 16'b0;
+    endcase
+    case (des_reg)
+        3'b000: temp_des = r0;
+        3'b001: temp_des = r1;
+        3'b010: temp_des = r2;
+        3'b011: temp_des = r3;
+        3'b100: temp_des = r4;
+        3'b101: temp_des= r5;
+        3'b110: temp_des= r6;
+        3'b111: temp_des = r7;
+        default: temp_des = 16'b0;
     endcase
 end
 
@@ -74,7 +86,6 @@ always @(posedge clock or negedge reset_b) begin
         r5 <= 16'b0;
         r6 <= 16'b0;
         r7 <= 16'b0;
-        move_src <= 16'b0;
     end
     else if(t2)begin
      if(mem_wr_en)begin
@@ -101,7 +112,7 @@ always @(posedge clock or negedge reset_b) begin
             default: mbr <= 16'b0;
         endcase
     end
-      else if(mem_rd_en)begin
+    else if(mem_rd_en)begin
         case (src_reg)
             3'b000: mar <= r0; 
             3'b001: mar <= r1;
@@ -114,7 +125,7 @@ always @(posedge clock or negedge reset_b) begin
             default: mar <= 16'b0;
         endcase
     end
-     else if(operand_en)begin
+    else if(operand_en)begin
         case (src_reg)
             3'b000: r_operand <= r0;
             3'b001: r_operand <= r1;
@@ -138,7 +149,7 @@ always @(posedge clock or negedge reset_b) begin
             default: l_operand <= 16'b0;
         endcase
     end
-     else if(sp_wr_en)begin
+    else if(push)begin
         case (src_reg)
             3'b000: mbr <= r0; 
             3'b001: mbr <= r1;
@@ -152,33 +163,70 @@ always @(posedge clock or negedge reset_b) begin
         endcase
      end
     end
-     else if (t5 && reg_wr_en) begin
+    else if (t5 && reg_wr_en) begin
          if(ld_value_en)begin
-         case (des_reg)
-            3'b000: r0 <= {8'b00000,value};
-            3'b001: r1 <= {8'b00000,value};
-            3'b010: r2 <= {8'b00000,value};
-            3'b011: r3 <= {8'b00000,value};
-            3'b100: r4 <= {8'b00000,value};
-            3'b101: r5 <= {8'b00000,value};
-            3'b110: r6 <= {8'b00000,value};
-            3'b111: r7 <= {8'b00000,value};
-            default: r0 <= {8'b00000,value};
-        endcase
-     end
-     else if(move) begin
-        case (des_reg)
-            3'b000: r0 <= move_src;
-            3'b001: r1 <= move_src;
-            3'b010: r2 <= move_src;
-            3'b011: r3 <= move_src;
-            3'b100: r4 <= move_src;
-            3'b101: r5 <= move_src;
-            3'b110: r6 <= move_src;
-            3'b111: r7 <= move_src;
-            default: r0 <= move_src;
-        endcase
-     end
+            case (des_reg)
+                3'b000: r0 <= {8'b00000,value};
+                3'b001: r1 <= {8'b00000,value};
+                3'b010: r2 <= {8'b00000,value};
+                3'b011: r3 <= {8'b00000,value};
+                3'b100: r4 <= {8'b00000,value};
+                3'b101: r5 <= {8'b00000,value};
+                3'b110: r6 <= {8'b00000,value};
+                3'b111: r7 <= {8'b00000,value};
+                default: r0 <= {8'b00000,value};
+            endcase
+        end
+        else if(move) begin
+            case (des_reg)
+                3'b000: r0 <= temp_src;
+                3'b001: r1 <= temp_src;
+                3'b010: r2 <= temp_src;
+                3'b011: r3 <= temp_src;
+                3'b100: r4 <= temp_src;
+                3'b101: r5 <= temp_src;
+                3'b110: r6 <= temp_src;
+                3'b111: r7 <= temp_src;
+                default: r0 <= temp_src;
+            endcase
+        end
+        else if(hxhg) begin
+            case (des_reg)
+                3'b000: r0 <= temp_src;
+                3'b001: r1 <= temp_src;
+                3'b010: r2 <= temp_src;
+                3'b011: r3 <= temp_src;
+                3'b100: r4 <= temp_src;
+                3'b101: r5 <= temp_src;
+                3'b110: r6 <= temp_src;
+                3'b111: r7 <= temp_src;
+                default: r0 <= temp_src;
+            endcase
+            case (src_reg)
+                3'b000: r0 <= temp_des;
+                3'b001: r1 <= temp_des;
+                3'b010: r2 <= temp_des;
+                3'b011: r3 <= temp_des;
+                3'b100: r4 <= temp_des;
+                3'b101: r5 <= temp_des;
+                3'b110: r6 <= temp_des;
+                3'b111: r7 <= temp_des;
+                default: r0 <= temp_des;
+            endcase
+        end
+        else if(swap) begin
+            case (des_reg)
+                3'b000: begin r0[15:8] <= r0[7:0]; r0[7:0] <= r0[15:8]; end 
+                3'b001: begin r1[15:8] <= r1[7:0]; r1[7:0] <= r1[15:8]; end
+                3'b010: begin r2[15:8] <= r2[7:0]; r2[7:0] <= r2[15:8]; end
+                3'b011: begin r3[15:8] <= r3[7:0]; r3[7:0] <= r3[15:8]; end
+                3'b100: begin r4[15:8] <= r4[7:0]; r4[7:0] <= r4[15:8]; end
+                3'b101: begin r5[15:8] <= r5[7:0]; r5[7:0] <= r5[15:8]; end
+                3'b110: begin r6[15:8] <= r6[7:0]; r6[7:0] <= r6[15:8]; end
+                3'b111: begin r7[15:8] <= r7[7:0]; r7[7:0] <= r7[15:8]; end
+                default: begin r0[15:8] <= r0[7:0]; r0[7:0] <= r0[15:8]; end
+            endcase
+        end
         else if(reg_dt_sel)begin
             if(exe_32)begin
                 case (des_reg)
@@ -193,7 +241,7 @@ always @(posedge clock or negedge reset_b) begin
                     default: {r0,r1} <= {alu_result0,alu_result1};
                 endcase
             end
-             else begin
+            else begin
                 case (des_reg)
                     3'b000: r0 <= alu_result0;
                     3'b001: r1 <= alu_result0;
@@ -207,34 +255,34 @@ always @(posedge clock or negedge reset_b) begin
                 endcase
             end
         end
-     else if(!reg_dt_sel)begin 
-        if(sp_rd_en)begin
-         case (des_reg)
-            3'b000: r0 <= dbus_in_data;
-            3'b001: r1 <= dbus_in_data;
-            3'b010: r2 <= dbus_in_data;
-            3'b011: r3 <= dbus_in_data;
-            3'b100: r4 <= dbus_in_data;
-            3'b101: r5 <= dbus_in_data;
-            3'b110: r6 <= dbus_in_data;
-            3'b111: r7 <= dbus_in_data;
-            default: r0 <= dbus_in_data;
-        endcase
-     end
-        else begin
-        case (des_reg)
-            3'b000: r0 <= dbus_in_data;
-            3'b001: r1 <= dbus_in_data;
-            3'b010: r2 <= dbus_in_data;
-            3'b011: r3 <= dbus_in_data;
-            3'b100: r4 <= dbus_in_data;
-            3'b101: r5 <= dbus_in_data;
-            3'b110: r6 <= dbus_in_data;
-            3'b111: r7 <= dbus_in_data;
-            default: r0 <= dbus_in_data;
-        endcase
+        else if(!reg_dt_sel)begin 
+            if(pop)begin
+                case (des_reg)
+                    3'b000: r0 <= dbus_in_data;
+                    3'b001: r1 <= dbus_in_data;
+                    3'b010: r2 <= dbus_in_data;
+                    3'b011: r3 <= dbus_in_data;
+                    3'b100: r4 <= dbus_in_data;
+                    3'b101: r5 <= dbus_in_data;
+                    3'b110: r6 <= dbus_in_data;
+                    3'b111: r7 <= dbus_in_data;
+                    default: r0 <= dbus_in_data;
+                endcase
+            end
+            else begin
+                case (des_reg)
+                    3'b000: r0 <= dbus_in_data;
+                    3'b001: r1 <= dbus_in_data;
+                    3'b010: r2 <= dbus_in_data;
+                    3'b011: r3 <= dbus_in_data;
+                    3'b100: r4 <= dbus_in_data;
+                    3'b101: r5 <= dbus_in_data;
+                    3'b110: r6 <= dbus_in_data;
+                    3'b111: r7 <= dbus_in_data;
+                    default: r0 <= dbus_in_data;
+                endcase
+            end
         end
-     end
 end
 end
 

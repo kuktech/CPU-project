@@ -51,3 +51,35 @@ STI Rs : mem_wr_en신호 set
          dbus_access = 11, dbus_addr_sel = 01, dbus_data_sel = 01
          data bus(rs/rd data) - register(mar/mbr)
 MOVE : reg_wr_en신호 set, move신호 set
+EXHG : reg_wr_en신호 set, hxhg신호 set
+SWAP : reg_wr_en신호 set, swap신호 set
+PUSH : push신호 set
+       sp_sel신호 set, sp_wr_en신호 set(stack pointer)
+       dbus_access = 11, dbus_addr_sel = 10, dbus_data_sel = 10
+POP : pop신호 set, reg_wr_en신호 set
+      sp_wr_en신호 set
+      dbus_access = 10, dbus_addr_sel = 11, dbus_data_sel = 00
+
+<Data operation>
+INC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+DEC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+NEC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+NOT : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+
+<Shift & Rotate>
+SHL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+SHR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ASL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ASR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ROL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ROR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+SHL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+            alu_value신호 - alu(shift_amt)
+SHR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ASL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ASR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ROL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+ROR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+
+<Arthmetic>
+ADD : 

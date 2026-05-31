@@ -8,7 +8,7 @@ module status_register (
     input  wire  t2,          // 명령어 실행 타이밍 (CLR/SET)
 
     // 명령어 종류 식별
-    input  wire  sr_wr_en,    // ALU 연산 결과로 SR을 갱신할 때 1
+    input  wire  sreg_wr_en,    // ALU 연산 결과로 SR을 갱신할 때 1
     input  wire  sr_bit_en,   // CLR SR.n / SET SR.n 명령어일 때 1
     input  wire  sr_bit_sel,  // 0 = CLR,  1 = SET
 
@@ -72,7 +72,7 @@ always @(posedge clock or negedge resetb) begin
     end
 
     // t5: ALU 연산 결과로 SR 전체 갱신
-    else if (t5 && sr_wr_en) begin
+    else if (t5 && sreg_wr_en) begin
         zf  <= alu_zf;
         nf  <= alu_nf;
         cf  <= alu_cf;

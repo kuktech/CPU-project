@@ -1,17 +1,17 @@
 `define HALT 10'b0000000001
 
-`define LDI_Value 10'b0000100000
+`define LDI_Value 5'b00001
 `define LDI 10'b0001000000
 `define STI 10'b0001000001
 `define MV 10'b0001000100
 `define EXHG 10'b0001000101
 `define SWAP 10'b0001000110
 `define PUSH 10'b0001100000
-`define POP 10'b0001100111
+`define POP 10'b0001100001
 
 `define INC 10'b0010000000
 `define DEC 10'b0010000001
-`define NEC 10'b010000010
+`define NEC 10'b0010000010
 `define NOT 10'b0010000011
 
 `define SHL 10'b0010000100
@@ -20,12 +20,12 @@
 `define ASR 10'b0010000111
 `define ROL 10'b0010001000
 `define ROR 10'b0010001001
-`define SHL_value 10'b0010010100
-`define SHR_value 10'b0010010101
-`define ASL_value 10'b0010010110
-`define ASR_value 10'b0010010111
-`define ROL_value 10'b0010011100
-`define ROR_value 10'b0010011101
+`define SHL_Value 10'b0010010100
+`define SHR_Value 10'b0010010101
+`define ASL_Value 10'b0010010110
+`define ASR_Value 10'b0010010111
+`define ROL_Value 10'b0010011000
+`define ROR_Value 10'b0010011001
 
 `define ADD 10'b0010100000
 `define ADDC 10'b0010100001
@@ -49,26 +49,29 @@
 
 `define CMP 10'b0011100000
 
-`define Bit_manipulate 5'b01000
+`define CLR_SR 7'b0100000
+`define CLR_RD 7'b0100001
+`define SET_SR 7'b0100010
+`define SET_RD 7'b0100011
 
-`define CALL 10'b0110000000
+`define CALL 5'b01100
 `define RET 10'b0110100000
 
-`define BR 10'b0111000000
-`define BRR 10'b0110100000
+`define BR 5'b01110
+`define BRR 5'b01111
 
-`define BRNZ 10'b0111000000
-`define BRZ 10'b0111100000
-`define BRNS 10'b1000000000
-`define BRS 10'b1000100000
-`define BRNC 10'b1001000000
-`define BRC 10'b1001100000
-`define BRNV 10'b1011000000
-`define BRV 10'b1011100000
-`define BRNGT 10'b1100000000
-`define BRGT 10'b1100100000
-`define BRNLT 10'b1101000000
-`define BRLT 10'b1101100000
+`define BRNZ 5'b10000
+`define BRZ 5'b10001
+`define BRNS 5'b10010
+`define BRS 5'b10011
+`define BRNC 5'b10100
+`define BRC 5'b10101
+`define BRNV 5'b10110
+`define BRV 5'b10111
+`define BRNGT 5'b11000
+`define BRGT 5'b11001
+`define BRNLT 5'b11010
+`define BRLT 5'b11011
 
 
 // ── alu_sel 그룹 코드 ─────────────────────────────────────

@@ -6,7 +6,7 @@ input wire [15:0] r_operand,
 
 input wire [4:0] alu_sel,    // 5비트 opcode (명령어[15:11])
 input wire [4:0] alu_sop,     // 5비트 sub-opcode
-input wire [7:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
+input wire [2:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
 
 input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
 
