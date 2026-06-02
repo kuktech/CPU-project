@@ -61,25 +61,44 @@ POP : pop신호 set, reg_wr_en신호 set
       dbus_access = 10, dbus_addr_sel = 11, dbus_data_sel = 00
 
 <Data operation>
-INC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-DEC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-NEC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+INC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+DEC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set 
+NEC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 NOT : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
 
 <Shift & Rotate>
-SHL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-SHR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ASL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ASR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ROL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ROR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-SHL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+SHL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+SHR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ASL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ASR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ROL :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ROR :  operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+SHL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
             alu_value신호 - alu(shift_amt)
-SHR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ASL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ASR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ROL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
-ROR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set
+SHR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ASL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ASR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ROL Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ROR Value : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 
 <Arthmetic>
-ADD : 
+ADD : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ADDC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ADDB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+ADDBC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+SUB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+SUBB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+SUBC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+SUBBC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+MUL : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+MULB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+DIV : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+DIVB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+MOD : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+MODB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+
+<Logical>
+AND : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+OR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+XOR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+NOR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set

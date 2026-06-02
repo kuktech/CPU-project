@@ -30,7 +30,7 @@ module instruction_decoder (
     output reg sp_sel,
     output reg sp_wr_en,
     output reg operand_en,
-    
+    output reg sreg_wr_en,
 
     output wire [4:0] alu_sel,
     output wire [4:0] alu_sop
@@ -74,6 +74,7 @@ reg [1:0] dbus_data_sel_dec;
 reg sp_sel_dec;
 reg sp_wr_en_dec;
 reg operand_en_dec;
+reg sreg_wr_en_dec;
 
 always @(*) begin 
     des_reg_dec  = 3'b0;
@@ -100,6 +101,7 @@ always @(*) begin
     sp_sel_dec = 1'b0;
     sp_wr_en_dec = 1'b0;
     operand_en_dec = 1'b0;
+    sreg_wr_en_dec = 1'b0;
 
     case(opcode)
         `LDI_Value:begin
@@ -229,18 +231,22 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
+            
         end
         `DEC:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `NEC:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `NOT:begin
@@ -253,42 +259,49 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `SHR:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `ASL:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `ASR:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `ROL:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `ROR:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `SHL_Value:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             alu_value_dec = rs;
         end
@@ -296,6 +309,7 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             alu_value_dec = rs;
         end
@@ -303,6 +317,7 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             alu_value_dec = rs;
         end
@@ -310,6 +325,7 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             alu_value_dec = rs;
         end
@@ -317,6 +333,7 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             alu_value_dec = rs;
         end
@@ -324,59 +341,145 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             alu_value_dec = rs;
         end
         `ADD:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `ADDC:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `ADDB:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `ADDBC:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `SUB:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `SUBC:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `SUBBC:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `MUL:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `MULB:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `DIV:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `DIVB:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `MOD:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `MODB:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `AND:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `OR:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `XOR:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `NOR:begin
-            
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
         end
         `RET:begin
             
@@ -411,6 +514,7 @@ always @(posedge clock or negedge resetb) begin
         sp_sel <= 1'b0;
         sp_wr_en <= 1'b0;
         operand_en <= 1'b0;
+        sreg_wr_en <= 1'b0; 
     end
     else if(t2)begin
         des_reg <= des_reg_dec;
@@ -436,6 +540,7 @@ always @(posedge clock or negedge resetb) begin
         sp_sel <= sp_sel_dec;
         sp_wr_en <= sp_wr_en_dec;
         operand_en <= operand_en_dec;
+        sreg_wr_en <=  sreg_wr_en_dec;
     end
 end
 endmodule
