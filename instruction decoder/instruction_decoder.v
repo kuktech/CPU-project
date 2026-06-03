@@ -1,12 +1,21 @@
 `include "1.defines/define.vh"
-
 module instruction_decoder (
     input wire clock,
     input wire resetb,
 
     input wire t2,
 
-    input [15:0] instruction,
+    input wire [15:0] instruction,
+
+    input wire cf,
+    input wire zf,          
+    input wire nf,         
+    input wire vf,
+    input wire sf,
+    input wire hf, 
+    input wire ltf,         
+    input wire gtf,  
+
     output reg [2:0] des_reg,
     output reg [2:0] src_reg,
     output reg [10:0] offset,
@@ -31,10 +40,14 @@ module instruction_decoder (
     output reg sp_wr_en,
     output reg operand_en,
     output reg sreg_wr_en,
+    output reg sr_bit_en,
+    output reg sr_bit_sel,
+    output reg sr_bit_idx,
+    output reg exe_32,
 
     output wire [4:0] alu_sel,
     output wire [4:0] alu_sop
-
+    
 );
 wire [2:0] rd = instruction[10:8];
 wire [2:0] rs = instruction[7:5];
@@ -75,6 +88,10 @@ reg sp_sel_dec;
 reg sp_wr_en_dec;
 reg operand_en_dec;
 reg sreg_wr_en_dec;
+reg sr_bit_en_dec;
+reg sr_bit_sel_dec;
+reg sr_bit_idx_dec;
+reg exe_32_dec;
 
 always @(*) begin 
     des_reg_dec  = 3'b0;
@@ -102,6 +119,10 @@ always @(*) begin
     sp_wr_en_dec = 1'b0;
     operand_en_dec = 1'b0;
     sreg_wr_en_dec = 1'b0;
+    sr_bit_en_dec = 1'b0;
+    sr_bit_sel_dec = 1'b0;
+    sr_bit_idx_dec = 1'b0;
+    exe_32_dec = 1'b0;
 
     case(opcode)
         `LDI_Value:begin
@@ -515,6 +536,10 @@ always @(posedge clock or negedge resetb) begin
         sp_wr_en <= 1'b0;
         operand_en <= 1'b0;
         sreg_wr_en <= 1'b0; 
+        sr_bit_en <= 1'b0;
+        sr_bit_sel <= 1'b0;
+        sr_bit_idx <= 1'b0;
+        exe_32 <= 1'b0;
     end
     else if(t2)begin
         des_reg <= des_reg_dec;
@@ -541,6 +566,10 @@ always @(posedge clock or negedge resetb) begin
         sp_wr_en <= sp_wr_en_dec;
         operand_en <= operand_en_dec;
         sreg_wr_en <=  sreg_wr_en_dec;
+        sr_bit_en <= sr_bit_en_dec;
+        sr_bit_sel <= sr_bit_sel_dec;
+        sr_bit_idx <= sr_bit_idx_dec;
+        exe_32 <= exe_32_dec;
     end
 end
 endmodule

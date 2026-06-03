@@ -1,3 +1,4 @@
+`include "1.defines/define.vh"
 module alu(
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
@@ -16,60 +17,8 @@ output reg cf,
 output reg nf,   
 output reg vf,   
 output reg gtf,  
-output reg ltf   
-
+output reg ltf
 );
-
-
-// ── alu_sel 그룹 코드 ─────────────────────────────────────
-`define GRP_DATA_SHIFT  5'b00100
-`define GRP_ARITH       5'b00101
-`define GRP_LOGIC       5'b00110
-`define GRP_CMP         5'b00111
-
-// ── DATA 그룹 내 {sop} ────────────────────────────────────
-`define DS_INC      5'b000_00
-`define DS_DEC      5'b000_01
-`define DS_NEC      5'b000_10
-`define DS_NOT      5'b000_11
-
-// ── SHIFT & Rotate 그룹 내 {sop} ──────────────────────────
-`define DS_SHL      5'b001_00
-`define DS_SHR      5'b001_01
-`define DS_ASL      5'b001_10
-`define DS_ASR      5'b001_11
-`define DS_ROL      5'b010_00
-`define DS_ROR      5'b010_01
-`define DS_SHL_V    5'b101_00
-`define DS_SHR_V    5'b101_01
-`define DS_ASL_V    5'b101_10
-`define DS_ASR_V    5'b101_11
-`define DS_ROL_V    5'b110_00
-`define DS_ROR_V    5'b110_01
-
-// ── ARITH 그룹 내 {sop} ────────────────────────────────────
-`define AR_ADD      5'b000_00
-`define AR_ADDC     5'b000_01
-`define AR_ADDB     5'b000_10
-`define AR_ADDBC    5'b000_11
-`define AR_SUB      5'b001_00
-`define AR_SUBC     5'b001_01
-`define AR_SUBB     5'b001_10
-`define AR_SUBBC    5'b001_11
-`define AR_MUL      5'b010_00
-`define AR_MULB     5'b010_10
-`define AR_DIV      5'b011_00
-`define AR_MOD      5'b011_01
-`define AR_DIVB     5'b011_10
-`define AR_MODB     5'b011_11
-
-// ── LOGIC 그룹 내 {sop} ─────────────────────────────────────
-`define LG_AND      5'b000_00
-`define LG_OR       5'b000_01
-`define LG_XOR      5'b000_10
-`define LG_NOR      5'b000_11
-
-// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
 reg [16:0] temp;
 reg [31:0] mul_temp;
@@ -99,14 +48,8 @@ always @(*) begin
     remainder = 17'b0;
 
     case (alu_sel)
-
-    // =========================================================
-    // DATA_SHIFT 그룹 (opcode = 00100)
-    // =========================================================
     `GRP_DATA_SHIFT: begin
         case (alu_sop)
-        // Data Operation
-        // INC Rd : Rd <-- Rd + 1
         `DS_INC: begin
             temp        = l_operand + 1;
             alu_result0 = temp[15:0];
@@ -114,7 +57,6 @@ always @(*) begin
             vf = (~l_operand[15]) & alu_result0[15];
         end
 
-        // DEC Rd : Rd <-- Rd - 1
         `DS_DEC: begin
             temp        = l_operand - 1;
             alu_result0 = temp[15:0];
@@ -122,63 +64,47 @@ always @(*) begin
             vf = l_operand[15] & (~alu_result0[15]);
         end
 
-        // NEC Rd : Rd <-- ~Rd + 1  (2의 보수 부정)
         `DS_NEC: begin
             temp        = (~l_operand) + 1;
             alu_result0 = temp[15:0];
             cf = temp[16];
             vf = l_operand[15] & alu_result0[15];
         end
-
-        // NOT Rd : Rd <-- ~Rd  (1의 보수)
         `DS_NOT: begin
             alu_result0 = ~l_operand;
         end
 
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-        // Shift / Rotate  (1-bit)
-
-        // SHL : logical shift left 1
         `DS_SHL: begin
             cf          = l_operand[15];
             alu_result0 = l_operand << 1;
         end
 
-        // SHR : logical shift right 1
         `DS_SHR: begin
             cf          = l_operand[0];
             alu_result0 = l_operand >> 1;
         end
 
-        // ASL : arithmetic shift left 1 (MSB→CF, vf = 부호 변화)
         `DS_ASL: begin
             cf          = l_operand[15];
             alu_result0 = l_operand <<< 1;
             vf          = cf ^ alu_result0[15];
         end
 
-        // ASR : arithmetic shift right 1 (부호 비트 유지)
         `DS_ASR: begin
             cf          = l_operand[0];
             alu_result0 = $signed(l_operand) >>> 1;
         end
 
-        // ROL : rotate left 1
         `DS_ROL: begin
             cf          = l_operand[15];
             alu_result0 = {l_operand[14:0], l_operand[15]};
         end
 
-        // ROR : rotate right 1
         `DS_ROR: begin
             cf          = l_operand[0];
             alu_result0 = {l_operand[0], l_operand[15:1]};
         end
 
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-        // Shift / Rotate  (#value 즉값)
-
-        // SHL #value
         `DS_SHL_V: begin
             if (shift_amt == 0) begin
                 alu_result0 = l_operand;
@@ -188,7 +114,6 @@ always @(*) begin
             end
         end
 
-        // SHR #value
         `DS_SHR_V: begin
             if (shift_amt == 0) begin
                 alu_result0 = l_operand;
@@ -198,7 +123,6 @@ always @(*) begin
             end
         end
 
-        // ASL #value
         `DS_ASL_V: begin
             if (shift_amt == 0) begin
                 alu_result0 = l_operand;
@@ -209,7 +133,6 @@ always @(*) begin
             end
         end
 
-        // ASR #value
         `DS_ASR_V: begin
             if (shift_amt == 0) begin
                 alu_result0 = l_operand;
@@ -219,7 +142,6 @@ always @(*) begin
             end
         end
 
-        // ROL #value
         `DS_ROL_V: begin
             if (shift_amt == 0) begin
                 alu_result0 = l_operand;
@@ -229,7 +151,6 @@ always @(*) begin
             end
         end
 
-        // ROR #value
         `DS_ROR_V: begin
             if (shift_amt == 0) begin
                 alu_result0 = l_operand;
@@ -247,12 +168,8 @@ always @(*) begin
         endcase
     end
 
-    // =========================================================
-    // ARITH 그룹 (opcode = 00101)
-    // =========================================================
     `GRP_ARITH: begin
         case (alu_sop)
-        // Arithmetic
         `AR_ADD: begin
             temp        = l_operand + r_operand;
             alu_result0 = temp[15:0];
@@ -267,7 +184,6 @@ always @(*) begin
             vf = (~(l_operand[15] ^ r_operand[15])) & (l_operand[15] ^ alu_result0[15]);
         end
 
-        // ADDB : Rd[7:0] + Rs[7:0], 상위 바이트 유지
         `AR_ADDB: begin
             temp        = {9'b0, l_operand[7:0]} + {9'b0, r_operand[7:0]};
             alu_result0 = {l_operand[15:8], temp[7:0]};
@@ -275,7 +191,6 @@ always @(*) begin
             vf = (~(l_operand[7] ^ r_operand[7])) & (l_operand[7] ^ temp[7]);
         end
 
-        // ADDBC : Rd[7:0] + Rs[7:0] + cy
         `AR_ADDBC: begin
             temp        = {9'b0, l_operand[7:0]} + {9'b0, r_operand[7:0]} + {8'b0, cf_in};
             alu_result0 = {l_operand[15:8], temp[7:0]};
@@ -297,7 +212,6 @@ always @(*) begin
             vf = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
         end
 
-        // SUBB : Rd[7:0] - Rs[7:0], 상위 바이트 유지
         `AR_SUBB: begin
             temp        = {9'b0, l_operand[7:0]} - {9'b0, r_operand[7:0]};
             alu_result0 = {l_operand[15:8], temp[7:0]};
@@ -305,16 +219,12 @@ always @(*) begin
             vf = (l_operand[7] ^ r_operand[7]) & (l_operand[7] ^ temp[7]);
         end
 
-        // SUBBC : Rd[7:0] - Rs[7:0] - cy
         `AR_SUBBC: begin
             temp        = {9'b0, l_operand[7:0]} - {9'b0, r_operand[7:0]} - {8'b0, cf_in};
             alu_result0 = {l_operand[15:8], temp[7:0]};
             cf = temp[8];
             vf = (l_operand[7] ^ r_operand[7]) & (l_operand[7] ^ temp[7]);
         end
-
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-        // MUL / DIV / MOD  – Shift 기반
 
         `AR_MUL: begin
             mul_temp = 32'b0;
@@ -427,9 +337,6 @@ always @(*) begin
         endcase
     end
 
-    // =========================================================
-    // LOGIC 그룹 (opcode = 00110)
-    // =========================================================
     `GRP_LOGIC: begin
         case (alu_sop)
         // Logical
@@ -456,17 +363,9 @@ always @(*) begin
         endcase
     end
 
-    // =========================================================
-    // CMP 그룹 (opcode = 00111)
-    // =========================================================
     `GRP_CMP: begin
-
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-        // Compare  (writeback 없음, flags only)
         temp        = l_operand - r_operand;
         alu_result0 = temp[15:0];
-        cf  = temp[16];
-        vf  = (l_operand[15] ^ r_operand[15]) & (l_operand[15] ^ alu_result0[15]);
         gtf = (~alu_result0[15]) & (alu_result0 != 16'b0) & (~vf);
         ltf = alu_result0[15] ^ vf;
     end
@@ -478,10 +377,8 @@ always @(*) begin
 
     endcase
 
-    // 공통 ZF / NF 갱신 
     zf = (alu_result0 == 16'b0);
     nf = alu_result0[15];
 
 end
-
 endmodule

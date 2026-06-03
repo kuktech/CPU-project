@@ -121,3 +121,12 @@
 `define LG_OR       5'b000_01
 `define LG_XOR      5'b000_10
 `define LG_NOR      5'b000_11
+
+`define SR_CF  3'b000
+`define SR_ZF  3'b001
+`define SR_NF  3'b010
+`define SR_VF  3'b011
+`define SR_SF  3'b100
+`define SR_HF  3'b101
+`define SR_LTF 3'b110
+`define SR_GTF 3'b111
