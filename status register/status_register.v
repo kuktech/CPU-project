@@ -4,15 +4,15 @@ module status_register (
     input  wire  resetb,
 
     // 게이트
-    input  wire  t5,          // ALU 결과 확정 타이밍 (SR 갱신)
-    input  wire  t2,          // 명령어 실행 타이밍 (CLR/SET)
+    input  wire  t5,          
+    input  wire  t2,          
 
     // 명령어 종류 식별
-    input  wire  sreg_wr_en,    // ALU 연산 결과로 SR을 갱신할 때 1
-    input  wire  sr_bit_en,   // CLR SR.n / SET SR.n 명령어일 때 1
-    input  wire  sr_bit_sel,  // 0 = CLR,  1 = SET
+    input  wire  sreg_wr_en,    
+    input  wire  sr_bit_en,   
+    input  wire  sr_bit_sel,  
 
-    // ALU 플래그 입력 (alu_plus.v 출력과 직결)
+    // ALU 플래그 입력
     input  wire  alu_zf,
     input  wire  alu_cf,
     input  wire  alu_nf,
@@ -20,34 +20,32 @@ module status_register (
     input  wire  alu_gtf,
     input  wire  alu_ltf,
 
-    // CLR/SET 대상 비트 번호 (명령어 [7:2] 필드 = SR.n)
-    // SR 비트 배치: [5]=LT [4]=GT [3]=VF [2]=CF [1]=NF [0]=ZF
-    input  wire [2:0]  sr_bit_idx,  // 0~5
+    input  wire [2:0]  sr_bit_idx,  
 
     // SR 출력
-    output reg         zf,          // bit 0 : Zero / EQ
-    output reg         nf,          // bit 1 : Negative / Sign
-    output reg         cf,          // bit 2 : Carry
-    output reg         vf,          // bit 3 : Overflow
-    output reg         gtf,         // bit 4 : Greater-Than  (CMP 전용)
-    output reg         ltf,         // bit 5 : Less-Than     (CMP 전용)
+    output reg         zf,          
+    output reg         nf,         
+    output reg         cf,          
+    output reg         vf,          
+    output reg         gtf,         
+    output reg         ltf,         
 
-    // 분기 조건 출력 (컨트롤러 → PC 선택에 사용)
-    output wire        br_z,        // BRZ  : z==1
-    output wire        br_nz,       // BRNZ : z==0
-    output wire        br_s,        // BRS  : n==1
-    output wire        br_ns,       // BRNS : n==0
-    output wire        br_c,        // BRC  : c==1
-    output wire        br_nc,       // BRNC : c==0
-    output wire        br_v,        // BRV  : v==1
-    output wire        br_nv,       // BRNV : v==0
-    output wire        br_gt,       // BRGT : gt==1
-    output wire        br_ngt,      // BRNGT: gt==0
-    output wire        br_lt,       // BRLT : lt==1
-    output wire        br_nlt,      // BRNLT: lt==0
+    // 분기 조건 출력
+    output wire        br_z,        
+    output wire        br_nz,       
+    output wire        br_s,        
+    output wire        br_ns,       
+    output wire        br_c,        
+    output wire        br_nc,       
+    output wire        br_v,        
+    output wire        br_nv,       
+    output wire        br_gt,       
+    output wire        br_ngt,      
+    output wire        br_lt,       
+    output wire        br_nlt,     
 
     // ADDC/SUBC/ADDBC/SUBBC 용 Carry 피드백
-    output wire        cf_out       // ALU cf_in 으로 연결
+    output wire        cf_out       
 );
 
 // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
@@ -84,7 +82,6 @@ always @(posedge clock or negedge resetb) begin
     // t2: CLR SR.n / SET SR.n 명령어 처리
     else if (t2 && sr_bit_en) begin
         if (!sr_bit_sel) begin
-            // CLR SR.n : SR(n) <-- 0
             case (sr_bit_idx)
                 `SR_ZF  : zf  <= 1'b0;
                 `SR_NF  : nf  <= 1'b0;
@@ -95,7 +92,6 @@ always @(posedge clock or negedge resetb) begin
                 default : ;
             endcase
         end else begin
-            // SET SR.n : SR(n) <-- 1
             case (sr_bit_idx)
                 `SR_ZF  : zf  <= 1'b1;
                 `SR_NF  : nf  <= 1'b1;

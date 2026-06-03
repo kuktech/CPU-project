@@ -1,68 +1,75 @@
-`include "1.defines/define.vh"
-
 module alu(
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
-input wire [4:0] alu_sel,    // 5비트 opcode (명령어[15:11])
-input wire [4:0] alu_sop,     // 5비트 sub-opcode
-input wire [2:0] shift_amt,  // SHL, SHR, ASL, ASR, ROL, ROR #value 용 즉값
+input wire [4:0] alu_sel,    
+input wire [4:0] alu_sop,     
+input wire [7:0] shift_amt,  
 
-input wire cf_in,            // ADDC, SUBC, ADDBC, SUBBC 용 Carry 입력
+input wire cf_in,            
 
 output reg [15:0] alu_result0,
 output reg [15:0] alu_result1,
 
-output reg zf,   // Zero flag
-output reg cf,   // Carry flag
-output reg nf,   // Negative(Sign) flag
-output reg vf,   // Overflow flag
-output reg gtf,  // Greater-Than flag (CMP 전용)
-output reg ltf   // Less-Than flag    (CMP 전용)
+output reg zf,   
+output reg cf,   
+output reg nf,   
+output reg vf,   
+output reg gtf,  
+output reg ltf   
 
 );
 
 
+// ── alu_sel 그룹 코드 ─────────────────────────────────────
+`define GRP_DATA_SHIFT  5'b00100
+`define GRP_ARITH       5'b00101
+`define GRP_LOGIC       5'b00110
+`define GRP_CMP         5'b00111
 
-/*
-=========================================================
-alu_sel (5-bit) 그룹 코드  ─  명령어[15:11] 그대로 사용
----------------------------------------------------------
-00100  DATA_SHIFT   Data Operation + Shift/Rotate
-00101  ARITH        Arithmetic (ADD/SUB/MUL/DIV/MOD)
-00110  LOGIC        Logical (AND/OR/XOR/NOR)
-00111  CMP          Compare
-=========================================================
+// ── DATA 그룹 내 {sop} ────────────────────────────────────
+`define DS_INC      5'b000_00
+`define DS_DEC      5'b000_01
+`define DS_NEC      5'b000_10
+`define DS_NOT      5'b000_11
 
-그룹 내 세부 선택: {sop1[2:0], sop2[1:0]}  (5-bit)
+// ── SHIFT & Rotate 그룹 내 {sop} ──────────────────────────
+`define DS_SHL      5'b001_00
+`define DS_SHR      5'b001_01
+`define DS_ASL      5'b001_10
+`define DS_ASR      5'b001_11
+`define DS_ROL      5'b010_00
+`define DS_ROR      5'b010_01
+`define DS_SHL_V    5'b101_00
+`define DS_SHR_V    5'b101_01
+`define DS_ASL_V    5'b101_10
+`define DS_ASR_V    5'b101_11
+`define DS_ROL_V    5'b110_00
+`define DS_ROR_V    5'b110_01
 
-── DATA_SHIFT (alu_sel = 00100) ─────────────────────────
- {sop1, sop2}
- 000_00  INC        000_01  DEC        000_10  NEC        000_11  NOT
- 001_00  SHL(1)     001_01  SHR(1)     001_10  ASL(1)     001_11  ASR(1)
- 010_00  ROL(1)     010_01  ROR(1)
- 101_00  SHL_V      101_01  SHR_V      101_10  ASL_V      101_11  ASR_V
- 110_00  ROL_V      110_01  ROR_V
+// ── ARITH 그룹 내 {sop} ────────────────────────────────────
+`define AR_ADD      5'b000_00
+`define AR_ADDC     5'b000_01
+`define AR_ADDB     5'b000_10
+`define AR_ADDBC    5'b000_11
+`define AR_SUB      5'b001_00
+`define AR_SUBC     5'b001_01
+`define AR_SUBB     5'b001_10
+`define AR_SUBBC    5'b001_11
+`define AR_MUL      5'b010_00
+`define AR_MULB     5'b010_10
+`define AR_DIV      5'b011_00
+`define AR_MOD      5'b011_01
+`define AR_DIVB     5'b011_10
+`define AR_MODB     5'b011_11
 
-── ARITH (alu_sel = 00101) ──────────────────────────────
- {sop1, sop2}
- 000_00  ADD        000_01  ADDC       000_10  ADDB       000_11  ADDBC
- 001_00  SUB        001_01  SUBC       001_10  SUBB       001_11  SUBBC
- 010_00  MUL        010_10  MULB
- 011_00  DIV        011_01  MOD        011_10  DIVB       011_11  MODB
+// ── LOGIC 그룹 내 {sop} ─────────────────────────────────────
+`define LG_AND      5'b000_00
+`define LG_OR       5'b000_01
+`define LG_XOR      5'b000_10
+`define LG_NOR      5'b000_11
 
-── LOGIC (alu_sel = 00110) ──────────────────────────────
- {sop1, sop2}  ─  sop1 무시, sop2만 사용
- xxx_00  AND        xxx_01  OR         xxx_10  XOR        xxx_11  NOR
-
-── CMP (alu_sel = 00111) ────────────────────────────────
- sub-op 없음
-=========================================================
-*/
-
-
-
-
+// ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
 reg [16:0] temp;
 reg [31:0] mul_temp;
@@ -98,11 +105,7 @@ always @(*) begin
     // =========================================================
     `GRP_DATA_SHIFT: begin
         case (alu_sop)
-
-        /* 여기서부터 찐 시작 */
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Data Operation
-
         // INC Rd : Rd <-- Rd + 1
         `DS_INC: begin
             temp        = l_operand + 1;
@@ -249,10 +252,7 @@ always @(*) begin
     // =========================================================
     `GRP_ARITH: begin
         case (alu_sop)
-
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-        // Arithmetic – 16-bit
-
+        // Arithmetic
         `AR_ADD: begin
             temp        = l_operand + r_operand;
             alu_result0 = temp[15:0];
@@ -316,8 +316,6 @@ always @(*) begin
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // MUL / DIV / MOD  – Shift 기반
 
-        // MUL : {alu_result1, alu_result0} = Rd * Rs (32-bit)
-        // Shift-and-Add: Rs[i]==1 이면 l_operand << i 를 누산
         `AR_MUL: begin
             mul_temp = 32'b0;
             for (i = 0; i < 16; i = i + 1) begin
@@ -328,8 +326,6 @@ always @(*) begin
             alu_result1 = mul_temp[31:16];
         end
 
-        // MULB : alu_result0 = Rd[7:0] * Rs[7:0] (16-bit)
-        // Shift-and-Add: 8비트 기준
         `AR_MULB: begin
             mul_temp = 32'b0;
             for (i = 0; i < 8; i = i + 1) begin
@@ -339,8 +335,6 @@ always @(*) begin
             alu_result0 = mul_temp[15:0];
         end
 
-        // DIV : alu_result0 = 몫(16-bit), alu_result1 = 나머지(16-bit)
-        // Shift-and-Subtract (Restoring Division)
         `AR_DIV: begin
             quotient  = 16'b0;
             divisor   = r_operand;
@@ -363,8 +357,6 @@ always @(*) begin
             end
         end
 
-        // DIVB : alu_result0[7:0] = 몫(8-bit), alu_result1[7:0] = 나머지
-        // Shift-and-Subtract: 8비트 기준
         `AR_DIVB: begin
             quotient  = 16'b0;
             divisor   = {8'b0, r_operand[7:0]};
@@ -387,8 +379,6 @@ always @(*) begin
             end
         end
 
-        // MOD : alu_result0 = 나머지(16-bit)
-        // Shift-and-Subtract (Restoring Division), 나머지만 반환
         `AR_MOD: begin
             quotient  = 16'b0;
             divisor   = r_operand;
@@ -409,8 +399,6 @@ always @(*) begin
             end
         end
 
-        // MODB : alu_result0[7:0] = 나머지(8-bit), 상위 바이트 유지
-        // Shift-and-Subtract: 8비트 기준
         `AR_MODB: begin
             quotient  = 16'b0;
             divisor   = {8'b0, r_operand[7:0]};
@@ -441,14 +429,10 @@ always @(*) begin
 
     // =========================================================
     // LOGIC 그룹 (opcode = 00110)
-    // sop1 무시, sop2만으로 구분
     // =========================================================
     `GRP_LOGIC: begin
         case (alu_sop)
-
-        // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Logical
-
         `LG_AND: begin
             alu_result0 = l_operand & r_operand;
         end
@@ -479,7 +463,6 @@ always @(*) begin
 
         // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
         // Compare  (writeback 없음, flags only)
-
         temp        = l_operand - r_operand;
         alu_result0 = temp[15:0];
         cf  = temp[16];
