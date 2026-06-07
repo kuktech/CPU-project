@@ -8,9 +8,7 @@ output wire t1,
 output wire t2,
 output wire t3,
 output wire t4,
-output wire t5,
-
-output wire pc_wr_en
+output wire t5
 );
 
 reg [4:0] rotator = 5'b10000;
@@ -36,5 +34,4 @@ always @(posedge clock or negedge resetb) begin
 end
 
 assign {t1, t2, t3, t4, t5} = rotator;
-assign pc_wr_en = t1 | t3 | t5;
 endmodule
