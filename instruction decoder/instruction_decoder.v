@@ -44,6 +44,10 @@ module instruction_decoder (
     output reg sr_bit_sel,
     output reg sr_bit_idx,
     output reg exe_32,
+    output reg pc_wr_en,
+    output reg [1:0] pc_sel,
+    output reg clr,
+    output reg set,
 
     output wire [4:0] alu_sel,
     output wire [4:0] alu_sop
@@ -53,7 +57,6 @@ wire [2:0] rd = instruction[10:8];
 wire [2:0] rs = instruction[7:5];
 wire [10:0] os = instruction[10:0];
 wire [7:0] reg_v = instruction[7:0];
-wire [2:0] alu_v = instruction[7:5];
 
 wire [4:0] opcode = instruction[15:11];
 wire [2:0] sop1 = instruction[4:2];
@@ -92,6 +95,10 @@ reg sr_bit_en_dec;
 reg sr_bit_sel_dec;
 reg sr_bit_idx_dec;
 reg exe_32_dec;
+reg pc_wr_en_dec;
+reg [1:0] pc_sel_dec;
+reg clr_dec;
+reg set_dec;
 
 always @(*) begin 
     des_reg_dec  = 3'b0;
@@ -123,6 +130,10 @@ always @(*) begin
     sr_bit_sel_dec = 1'b0;
     sr_bit_idx_dec = 1'b0;
     exe_32_dec = 1'b0;
+    pc_wr_en_dec = 1'b0;
+    pc_sel_dec = 2'b00;
+    clr_dec = 1'b0;
+    set_dec = 1'b0;
 
     case(opcode)
         `LDI_Value:begin
@@ -133,63 +144,176 @@ always @(*) begin
             reg_value_dec = reg_v;
         end
         `CALL:begin
-            
+            sp_wr_en_dec = 1'b1;
+            sp_sel_dec = 1'b1;
+            pc_wr_en_dec = 1'b1;
+            pc_sel_dec = 2'b01;
+            dbus_access_dec = 2'b11;
+            dbus_addr_sel_dec = 2'b10;
+            dbus_data_sel_dec = 2'b11;
+            offset_dec = os;
         end
         `BR:begin
-            
+            pc_wr_en_dec = 1'b1;
+            pc_sel_dec = 2'b10;
         end
         `BRR:begin
-            
+            pc_wr_en_dec = 1'b1;
+            pc_sel_dec = 2'b01;
         end
         `BRNZ:begin
-            
+            if(!zf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRZ:begin
-            
+            if(zf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRNS:begin
-            
+            if(!sf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+                offset_dec = os;
+            end
         end
         `BRS:begin
-            
+            if(sf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRNC:begin
-            
+            if(!cf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRC:begin
-            
+            if(cf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRNV:begin
-            
+            if(!vf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRV:begin
-            
+            if(vf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRNGT:begin
-            
+            if(!gtf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRGT:begin
-            
+            if(gtf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRNLT:begin
-            
+            if(!ltf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
         `BRLT:begin
-            
+            if(ltf) begin
+                pc_wr_en_dec = 1'b1;
+                pc_sel_dec = 2'b01;
+                offset_dec = os;
+            end
+            else begin
+                pc_wr_en_dec = 1'b0;
+                pc_sel_dec = 2'b00;
+            end
         end
     endcase
     case({opcode,sop2})
         `CLR_SR:begin
-            
+            sr_bit_en_dec = 1'b1;
+            sr_bit_idx_dec = sop1;
         end
         `CLR_RD:begin
-            
+            reg_wr_en_dec = 1'b1;
+            clr_dec = 1'b1;
+            des_reg_dec = sop1;
         end
         `SET_SR:begin
-            
+            sr_bit_en_dec = 1'b1;
+            sr_bit_sel_dec = 1'b1;
+            sr_bit_idx_dec = sop1;
         end
         `SET_RD:begin
-            
+            reg_wr_en_dec = 1'b1;
+            set_dec = 1'b1;
+            des_reg_dec = sop1;
         end
     endcase
     case (operation)
@@ -429,6 +553,7 @@ always @(*) begin
             sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             src_reg_dec = rs;
+            exe_32_dec = 1'b0;
         end
         `MULB:begin
             operand_en_dec = 1'b1;
@@ -502,8 +627,18 @@ always @(*) begin
             des_reg_dec = rd;
             src_reg_dec = rs;
         end
+        `CMP:begin
+            operand_en_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
+        end
         `RET:begin
-            
+            sp_wr_en_dec = 1'b1;
+            pc_sel_dec = 2'b11;
+            dbus_access_dec = 2'b10;
+            dbus_addr_sel_dec = 2'b11;
+            dbus_data_sel_dec = 2'b00;
         end
         default: begin
         end
@@ -540,6 +675,10 @@ always @(posedge clock or negedge resetb) begin
         sr_bit_sel <= 1'b0;
         sr_bit_idx <= 1'b0;
         exe_32 <= 1'b0;
+        pc_wr_en <= 1'b0;
+        pc_sel <= 2'b00;
+        clr <= 1'b0;
+        set <= 1'b0;
     end
     else if(t2)begin
         des_reg <= des_reg_dec;
@@ -570,6 +709,10 @@ always @(posedge clock or negedge resetb) begin
         sr_bit_sel <= sr_bit_sel_dec;
         sr_bit_idx <= sr_bit_idx_dec;
         exe_32 <= exe_32_dec;
+        pc_wr_en <= pc_wr_en_dec;
+        pc_sel <= pc_sel_dec;
+        clr <= clr_dec;
+        set <= set_dec;
     end
 end
 endmodule

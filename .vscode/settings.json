@@ -1,3 +1,4 @@
 {
     "verilog.linting.linter": "iverilog",
+    "verilog.linting.iverilog.arguments": "-y \"C:/Users/kuk/Documents/New project/verilog/alu\" -y \"C:/Users/kuk/Documents/New project/verilog/data bus\" -y \"C:/Users/kuk/Documents/New project/verilog/data memory\" -y \"C:/Users/kuk/Documents/New project/verilog/instruction decoder\" -y \"C:/Users/kuk/Documents/New project/verilog/instruction register\" -y \"C:/Users/kuk/Documents/New project/verilog/program bus\" -y \"C:/Users/kuk/Documents/New project/verilog/program counter\" -y \"C:/Users/kuk/Documents/New project/verilog/program memory\" -y \"C:/Users/kuk/Documents/New project/verilog/register\" -y \"C:/Users/kuk/Documents/New project/verilog/stack pointer\" -y \"C:/Users/kuk/Documents/New project/verilog/state control\" -y \"C:/Users/kuk/Documents/New project/verilog/status register\" -y \"C:/Users/kuk/Documents/New project/verilog/top\""
 }

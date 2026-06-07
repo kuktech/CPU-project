@@ -97,8 +97,31 @@ DIVB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_
 MOD : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 MODB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 
+<Compare>
+CMP : operand_en신호 set, sreg_wr_en신호 set
+
+<Bit manipulate>
+CLR_SR : sr_bit_en신호 set, sr_bit_idx지정
+CLR_Rd : reg_wr_en신호 set, clr 신호set
+SET_SR : sr_bit_en신호 set,sr_bit_sel신호 set, sr_bit_idx지정
+SET_Rd : reg_wr_en신호 set, set신호 set
+
 <Logical>
 AND : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 OR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 XOR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 NOR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+
+<Subroutine>
+Call target : sp_wr_en신호 set, sp_sel신호 set, pc_wr_en신호 set, pc_sel = 01
+              dbus_access = 11 , dbus_addr_sel = 10 , dbus_data_sel = 11
+RET : sp_wr_en신호 set, pc_wr_en신호 set, pc_sel = 11
+      dbus_access = 10 , dbus_addr_sel = 11, dbus_data_sel = 00
+
+<Branch>
+BR : pc_wr_en신호 set , pc_sel = 10
+BRR : pc_wr_en신호 set, pc_sel = 01
+
+<cond.Branch>
+flag조건 참일시 : pc_wr_en신호 set, pc_sel = 01
+flag조건 거짓일시 : 동작 없음

@@ -1,6 +1,6 @@
 module program_counter(
 input wire clock,
-input wire reset_b,
+input wire resetb,
 
 input wire [15:0] pc_in,
 
@@ -20,12 +20,12 @@ reg [15:0] pc = 16'b0;
 wire [15:0] offset_ext;
 assign offset_ext = {{5{offset[10]}}, offset};
 
-always @(posedge clock or negedge reset_b) begin
-    if (!reset_b) begin
+always @(posedge clock or negedge resetb) begin
+    if (!resetb) begin
         pc <= 16'b0;
     end
      else if (t1) begin
-        pc <= pc + 16'd2;
+        pc <= pc + 1'b1;
     end
     else if(pc_wr_en)begin
     case (pc_sel)

@@ -1,6 +1,6 @@
 module stack_pointer (
 input wire clock,
-input wire reset_b,
+input wire resetb,
 
 input wire t2,
 input wire t5,
@@ -13,8 +13,8 @@ output wire [15:0] sp_out
 reg [15:0] sp = 16'b0000000011111111;
 assign sp_out = sp;
 
-always @(posedge clock or negedge reset_b ) begin
-    if(!reset_b)begin
+always @(posedge clock or negedge resetb ) begin
+    if(!resetb)begin
         sp = 16'b0000000011111111;
     end
     else if(t5&&sp_wr_en)begin

@@ -23,4 +23,4 @@ RET : SP의 memory값을 data bus로 연결받음
 
 
 call과 분기는 함께 설정하면 : sp 전송은 상시 설정
-ret : t4시점에서 pc값을 저장
+ret : t5시점에서 pc값을 저장

@@ -3,8 +3,8 @@ module status_register (
     input wire clock,
     input wire resetb,
 
-    input wire t5,          
-    input wire t2,          
+    input wire t3,
+    input wire t5,                
 
     input wire sreg_wr_en,    
     input wire sr_bit_en,   
@@ -56,21 +56,9 @@ always @(posedge clock or negedge resetb) begin
         gtf <= alu_gtf;
     end
 
-    else if (t2 && sr_bit_en) begin
-        if (!sr_bit_sel) begin
-            case (sr_bit_idx) 
-                `SR_CF: cf <= 1'b0;
-                `SR_ZF: zf <= 1'b0;
-                `SR_NF: nf <= 1'b0;
-                `SR_SF: sf <= 1'b0;
-                `SR_HF: hf <= 1'b0;
-                `SR_VF: vf <= 1'b0;
-                `SR_LTF: ltf <= 1'b0; 
-                `SR_GTF: gtf <= 1'b0;
-                default: ;
-            endcase
-        end else begin
-            case (sr_bit_idx)
+    else if (t3 && sr_bit_en) begin
+        if (sr_bit_sel) begin
+             case (sr_bit_idx)
                 `SR_CF: cf <= 1'b1;
                 `SR_ZF: zf <= 1'b1;
                 `SR_NF: nf <= 1'b1;
@@ -80,6 +68,19 @@ always @(posedge clock or negedge resetb) begin
                 `SR_LTF: ltf <= 1'b1; 
                 `SR_GTF: gtf <= 1'b1;
                 default : ;
+            endcase
+        end
+        else  begin
+            case(sr_bit_idx) 
+                `SR_CF: cf <= 1'b0;
+                `SR_ZF: zf <= 1'b0;
+                `SR_NF: nf <= 1'b0;
+                `SR_SF: sf <= 1'b0;
+                `SR_HF: hf <= 1'b0;
+                `SR_VF: vf <= 1'b0;
+                `SR_LTF: ltf <= 1'b0; 
+                `SR_GTF: gtf <= 1'b0;
+                default: ;
             endcase
         end
     end

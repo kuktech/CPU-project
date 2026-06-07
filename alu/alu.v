@@ -1,5 +1,8 @@
 `include "1.defines/define.vh"
 module alu(
+
+input wire t3,
+
 input wire [15:0] l_operand,
 input wire [15:0] r_operand,
 
@@ -46,7 +49,7 @@ always @(*) begin
     quotient  = 16'b0;
     divisor   = 16'b0;
     remainder = 17'b0;
-
+if(t3)begin
     case (alu_sel)
     `GRP_DATA_SHIFT: begin
         case (alu_sop)
@@ -376,7 +379,7 @@ always @(*) begin
     end
 
     endcase
-
+end
     zf = (alu_result0 == 16'b0);
     nf = alu_result0[15];
 

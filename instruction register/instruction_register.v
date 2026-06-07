@@ -1,6 +1,6 @@
 module instruction_register (
 input wire clock,
-input wire reset_b,
+input wire resetb,
 
 input wire t1,
 
@@ -15,8 +15,8 @@ output wire wr_en
 );
 assign wr_en = t1;
 
-always @(posedge clock or negedge reset_b) begin
-    if(!reset_b)begin
+always @(posedge clock or negedge resetb) begin
+    if(!resetb)begin
         instruction_out <= 16'b0;
     end
     else if (wr_en) begin

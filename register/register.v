@@ -1,6 +1,6 @@
 module register (
 input wire clock,
-input wire reset_b,
+input wire resetb,
 
 input wire reg_dt_sel,
 input wire exe_32,
@@ -20,7 +20,10 @@ input wire swap,
 input wire push,
 input wire pop,
 
-input wire t2,
+input wire clr,
+input wire set,
+
+input wire t3,
 input wire t5,
 
 input wire [2:0] des_reg,
@@ -36,8 +39,8 @@ input wire [7:0] value,
 output reg [15:0] r_operand,
 output reg [15:0] l_operand,
 
-output reg [15:0] mar,
-output reg [15:0] mbr
+output reg [15:0] rd_data,
+output reg [15:0] rs_data
 );
 reg [15:0] r0 = 16'b0; 
 reg [15:0] r1 = 16'b0; 
@@ -76,8 +79,8 @@ always @(*) begin
     endcase
 end
 
-always @(posedge clock or negedge reset_b) begin
-    if(!reset_b)begin
+always @(posedge clock or negedge resetb) begin
+    if(!resetb)begin
         r0 <= 16'b0;
         r1 <= 16'b0;
         r2 <= 16'b0;
@@ -87,42 +90,42 @@ always @(posedge clock or negedge reset_b) begin
         r6 <= 16'b0;
         r7 <= 16'b0;
     end
-    else if(t2)begin
+    else if(t3)begin
      if(mem_wr_en)begin
         case (des_reg)
-            3'b000: mar <= r0;
-            3'b001: mar <= r1;
-            3'b010: mar <= r2;
-            3'b011: mar <= r3;
-            3'b100: mar <= r4;
-            3'b101: mar <= r5;
-            3'b110: mar <= r6;
-            3'b111: mar <= r7;
-            default: mar <= 16'b0;
+            3'b000: rd_data <= r0;
+            3'b001: rd_data <= r1;
+            3'b010: rd_data <= r2;
+            3'b011: rd_data <= r3;
+            3'b100: rd_data <= r4;
+            3'b101: rd_data <= r5;
+            3'b110: rd_data <= r6;
+            3'b111: rd_data <= r7;
+            default: rd_data <= 16'b0;
         endcase
         case (src_reg)
-            3'b000: mbr <= r0; 
-            3'b001: mbr <= r1;
-            3'b010: mbr <= r2;
-            3'b011: mbr <= r3;
-            3'b100: mbr <= r4;
-            3'b101: mbr <= r5;
-            3'b110: mbr <= r6;
-            3'b111: mbr <= r7;
-            default: mbr <= 16'b0;
+            3'b000: rs_data <= r0; 
+            3'b001: rs_data <= r1;
+            3'b010: rs_data <= r2;
+            3'b011: rs_data <= r3;
+            3'b100: rs_data <= r4;
+            3'b101: rs_data <= r5;
+            3'b110: rs_data <= r6;
+            3'b111: rs_data <= r7;
+            default: rs_data <= 16'b0;
         endcase
     end
     else if(mem_rd_en)begin
         case (src_reg)
-            3'b000: mar <= r0; 
-            3'b001: mar <= r1;
-            3'b010: mar <= r2;
-            3'b011: mar <= r3;
-            3'b100: mar <= r4;
-            3'b101: mar <= r5;
-            3'b110: mar <= r6;
-            3'b111: mar <= r7;
-            default: mar <= 16'b0;
+            3'b000: rs_data <= r0; 
+            3'b001: rs_data <= r1;
+            3'b010: rs_data <= r2;
+            3'b011: rs_data <= r3;
+            3'b100: rs_data <= r4;
+            3'b101: rs_data <= r5;
+            3'b110: rs_data <= r6;
+            3'b111: rs_data <= r7;
+            default: rs_data <= 16'b0;
         endcase
     end
     else if(operand_en)begin
@@ -151,15 +154,15 @@ always @(posedge clock or negedge reset_b) begin
     end
     else if(push)begin
         case (src_reg)
-            3'b000: mbr <= r0; 
-            3'b001: mbr <= r1;
-            3'b010: mbr <= r2;
-            3'b011: mbr <= r3;
-            3'b100: mbr <= r4;
-            3'b101: mbr <= r5;
-            3'b110: mbr <= r6;
-            3'b111: mbr <= r7;
-            default: mbr <= 16'b0;
+            3'b000: rs_data <= r0; 
+            3'b001: rs_data <= r1;
+            3'b010: rs_data <= r2;
+            3'b011: rs_data <= r3;
+            3'b100: rs_data <= r4;
+            3'b101: rs_data <= r5;
+            3'b110: rs_data <= r6;
+            3'b111: rs_data <= r7;
+            default: rs_data <= 16'b0;
         endcase
      end
     end
@@ -227,6 +230,32 @@ always @(posedge clock or negedge reset_b) begin
                 default: begin r0[15:8] <= r0[7:0]; r0[7:0] <= r0[15:8]; end
             endcase
         end
+        else if (clr) begin
+             case (des_reg)
+                3'b000: begin r0 <= 16'b0; end 
+                3'b001: begin r1 <= 16'b0; end 
+                3'b010: begin r2 <= 16'b0; end 
+                3'b011: begin r3 <= 16'b0; end 
+                3'b100: begin r4 <= 16'b0; end 
+                3'b101: begin r5 <= 16'b0; end 
+                3'b110: begin r6 <= 16'b0; end 
+                3'b111: begin r7 <= 16'b0; end 
+                default: begin r0 <= 16'b0; end 
+            endcase
+        end
+        else if (set) begin
+              case (des_reg)
+                3'b000: begin r0 <= 16'b1; end 
+                3'b001: begin r1 <= 16'b1; end 
+                3'b010: begin r2 <= 16'b1; end 
+                3'b011: begin r3 <= 16'b1; end 
+                3'b100: begin r4 <= 16'b1; end 
+                3'b101: begin r5 <= 16'b1; end 
+                3'b110: begin r6 <= 16'b1; end 
+                3'b111: begin r7 <= 16'b1; end 
+                default: begin r0 <= 16'b1; end 
+            endcase
+        end
         else if(reg_dt_sel)begin
             if(exe_32)begin
                 case (des_reg)
@@ -282,6 +311,16 @@ always @(posedge clock or negedge reset_b) begin
                     default: r0 <= dbus_in_data;
                 endcase
             end
+        end
+        else begin
+            r0 <= r0;
+            r1 <= r1;
+            r2 <= r2;
+            r3 <= r3;
+            r4 <= r4;
+            r5 <= r5;
+            r6 <= r6;
+            r7 <= r7;
         end
 end
 end

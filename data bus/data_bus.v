@@ -2,7 +2,7 @@ module data_bus(
     input  wire  clock,
     input  wire  resetb,
 
-    input  wire  t2,
+    input  wire  t3,
     input  wire  t4,
     input  wire  t5,
 
@@ -24,8 +24,7 @@ module data_bus(
     output reg [15:0] mbr,
     output reg [15:0] mar,
 
-    output reg[15:0] dbus_in_data,
-    output reg[15:0] dbus_in_pc
+    output reg[15:0] dbus_in_data
 );
 
 reg drdb;
@@ -73,9 +72,8 @@ always @(posedge clock or negedge resetb) begin
         mar <= 16'b0;
         mbr <= 16'b0;
         dbus_in_data <=16'b0;
-        dbus_in_pc <= 16'b0;
     end
-    else if(t2) begin
+    else if(t3) begin
          drdb_pin <= drdb;
          dwrb_pin <= dwrb;
          dcsb_pin <= dcsb;
