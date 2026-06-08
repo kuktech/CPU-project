@@ -6,3 +6,5 @@ top 내부 포트는 cpu외부 testbench와 연결되는 신호들을 정의
 cpu내부 블록 간의 연결신호들은 모듈 외부에 wire로 나열
 
 .module_port_name(top_wire_name)
+모듈내부의 output신호도 다시 포트에 선언해야 한다.
+top wire신호들은 중간선 역할이다.

@@ -15,10 +15,12 @@ input wire alu_cf_in,
 output reg [15:0] alu_result0,
 output reg [15:0] alu_result1,
 
-output reg alu_zf,   
-output reg alu_cf,   
+output reg alu_cf,
+output reg alu_zf,
 output reg alu_nf,   
-output reg alu_vf,   
+output reg alu_vf,
+output reg alu_sf,
+output reg alu_hf, 
 output reg alu_gtf,  
 output reg alu_ltf
 );
@@ -37,10 +39,13 @@ always @(*) begin
     // 기본값 초기화
     alu_result0 = 16'b0;
     alu_result1 = 16'b0;
-    alu_zf  = 1'b0;
-    alu_cf  = 1'b0;
-    alu_nf  = 1'b0;
-    alu_vf  = 1'b0;
+
+    alu_cf = 1'b0;
+    alu_zf = 1'b0;
+    alu_nf = 1'b0;
+    alu_vf = 1'b0;
+    alu_sf = 1'b0;
+    alu_hf = 1'b0;
     alu_gtf = 1'b0;
     alu_ltf = 1'b0;
 
@@ -378,10 +383,13 @@ if(t3)begin
         alu_result1 = 16'b0;
     end
 
-    endcase
-end
+    endcase 
     alu_zf = (alu_result0 == 16'b0);
     alu_nf = alu_result0[15];
+    alu_sf = alu_nf ^ alu_vf;
+    alu_hf = (l_operand[3:0] + r_operand[3:0]) > 4'hF;
+end
+   
 
 end
 endmodule

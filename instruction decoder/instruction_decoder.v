@@ -42,7 +42,7 @@ module instruction_decoder (
     output reg sreg_wr_en,
     output reg sr_bit_en,
     output reg sr_bit_sel,
-    output reg sr_bit_idx,
+    output reg [2:0] sr_bit_idx,
     output reg exe_32,
     output reg pc_wr_en,
     output reg [1:0] pc_sel,
@@ -93,7 +93,7 @@ reg operand_en_dec;
 reg sreg_wr_en_dec;
 reg sr_bit_en_dec;
 reg sr_bit_sel_dec;
-reg sr_bit_idx_dec;
+reg [2:0] sr_bit_idx_dec;
 reg exe_32_dec;
 reg pc_wr_en_dec;
 reg [1:0] pc_sel_dec;
@@ -128,7 +128,7 @@ always @(*) begin
     sreg_wr_en_dec = 1'b0;
     sr_bit_en_dec = 1'b0;
     sr_bit_sel_dec = 1'b0;
-    sr_bit_idx_dec = 1'b0;
+    sr_bit_idx_dec = 3'b0;
     exe_32_dec = 1'b0;
     pc_wr_en_dec = 1'b0;
     pc_sel_dec = 2'b00;
@@ -673,7 +673,7 @@ always @(posedge clock or negedge resetb) begin
         sreg_wr_en <= 1'b0; 
         sr_bit_en <= 1'b0;
         sr_bit_sel <= 1'b0;
-        sr_bit_idx <= 1'b0;
+        sr_bit_idx <= 3'b0;
         exe_32 <= 1'b0;
         pc_wr_en <= 1'b0;
         pc_sel <= 2'b00;
