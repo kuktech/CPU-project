@@ -244,7 +244,16 @@ if(t3)begin
             alu_result1 = mul_temp[31:16];
         end
 
-        `AR_MULB: begin
+        `AR_MULHB: begin
+            mul_temp = 32'b0;
+            for (i = 0; i < 16; i = i + 1) begin
+                if (r_operand[i])
+                    mul_temp = mul_temp + ({24'b0, l_operand[15:8]} << i);
+            end
+            alu_result0 = mul_temp[15:0];
+        end
+
+        `AR_MULLB: begin
             mul_temp = 32'b0;
             for (i = 0; i < 8; i = i + 1) begin
                 if (r_operand[i])
