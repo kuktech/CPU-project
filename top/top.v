@@ -123,7 +123,7 @@ status_register u_status_register (
     .clock(clock),
     .resetb(resetb),
     .t3(t3),
-    .t5(t3),                
+    .t5(t5),                
     .sreg_wr_en(sreg_wr_en),    
     .sr_bit_en(sr_bit_en),   
     .sr_bit_sel(sr_bit_sel),  
