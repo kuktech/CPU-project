@@ -20,10 +20,12 @@ module instruction_decoder (
     output reg [2:0] src_reg,
     output reg [10:0] offset,
     output reg [7:0] reg_value,
-    output reg [2:0] alu_value,
+    output reg [2:0] alu_value, 
+    output reg [2:0] n,
 
     output reg halt,
     output reg move,
+    output reg mv_sp,
     output reg hxhg,
     output reg swap,
     output reg push,
@@ -50,9 +52,9 @@ module instruction_decoder (
     output reg clr,
     output reg set,
 
+
     output wire [4:0] alu_sel,
-    output wire [4:0] alu_sop
-    
+    output wire [4:0] alu_sop    
 );
 wire [2:0] rd = instruction[10:8];
 wire [2:0] rs = instruction[7:5];
@@ -73,9 +75,11 @@ reg [2:0] src_reg_dec;
 reg [10:0] offset_dec;
 reg [7:0] reg_value_dec;
 reg [2:0] alu_value_dec;
+reg [2:0] n_dec;
 
 reg halt_dec;
 reg move_dec;
+reg mv_sp_dec;
 reg hxhg_dec;
 reg swap_dec;
 reg push_dec;
@@ -108,9 +112,11 @@ always @(*) begin
     offset_dec = 11'b0;
     reg_value_dec = 8'b0;
     alu_value_dec = 3'b0;
+    n_dec = 3'b0;
 
     halt_dec = 1'b0;
     move_dec = 1'b0;
+    mv_sp = 1'b0;
     hxhg_dec = 1'b0;
     swap_dec = 1'b0;
     push_dec = 1'b0;
@@ -312,7 +318,8 @@ always @(*) begin
         `CLR_RD:begin
             reg_wr_en_dec = 1'b1;
             clr_dec = 1'b1;
-            des_reg_dec = sop1;
+            des_reg_dec = rd;
+            n_dec = sop1;
         end
         `SET_SR:begin
             sr_bit_en_dec = 1'b1;
@@ -322,7 +329,8 @@ always @(*) begin
         `SET_RD:begin
             reg_wr_en_dec = 1'b1;
             set_dec = 1'b1;
-            des_reg_dec = sop1;
+            des_reg_dec = rd;
+            n_dec = sop1;
         end
     endcase
     case (operation)
@@ -354,8 +362,7 @@ always @(*) begin
         end
         `MVSP:begin
             reg_wr_en_dec = 1'b1;
-            move_dec = 1'b1;
-            des_reg_dec = rd;
+            mv_sp_dec = 1'b1;
             src_reg_dec = rs;
         end
         `EXHG:begin
@@ -675,9 +682,11 @@ always @(posedge clock or negedge resetb) begin
         offset <= 11'b0;
         reg_value <= 8'b0;
         alu_value <= 3'b0;
+        n <= 3'b0;
 
         halt <= 1'b0;
         move <= 1'b0;
+        mv_sp <= 1'b0;
         hxhg <= 1'b0;
         swap <= 1'b0;
         push <= 1'b0;
@@ -710,9 +719,11 @@ always @(posedge clock or negedge resetb) begin
         offset <= offset_dec;
         reg_value <= reg_value_dec;
         alu_value <= alu_value_dec;
+        n <= n_dec;
 
         halt <= halt_dec;
         move <= move_dec;
+        mv_sp <= mv_sp_dec;
         hxhg <= hxhg_dec;
         swap <= swap_dec;
         push <= push_dec;

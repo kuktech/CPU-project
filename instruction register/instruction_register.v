@@ -4,8 +4,6 @@ input wire resetb,
 
 input wire t1,
 
-input wire branch_en,
-
 input wire [15:0] pbus_in_data,
 
 output reg [15:0] instruction

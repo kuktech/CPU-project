@@ -36,9 +36,11 @@ wire [2:0] src_reg;
 wire [10:0] offset;
 wire [7:0] reg_value;
 wire [2:0] alu_value;
+wire [2:0] n;
 
 wire halt;
 wire move;
+wire mv_sp;
 wire hxhg;
 wire swap;
 wire push;
@@ -117,6 +119,7 @@ stack_pointer u_stack_pointer (
     .t5(t5),
     .sp_sel(sp_sel),
     .sp_wr_en(sp_wr_en),
+    .mv_sp(mv_sp),
     .sp_out(sp_out)
 );
 
@@ -152,67 +155,68 @@ instruction_register u_instruction_register (
     .clock(clock),
     .resetb(resetb),
     .t1(t1),
-    .branch_en(branch_en),
     .pbus_in_data(pbus_in_data),
     .instruction(instruction)
-);
-
-instruction_decoder u_instruction_decoder (
-    .clock(clock),
-    .resetb(resetb),
-    .t2,
-
-    .[15:0] instruction,
-
-    .cf()
-    .zf()          
-    .nf()         
-    .vf()
-    .sf()
-    .hf() 
-    .ltf()         
-    .gtf()  
-
-    .[2:0] des_reg()
-    .[2:0] src_reg()
-    .[10:0] offset()
-    .[7:0] reg_value()
-    .[2:0] alu_value()
-
-    .halt()
-    .move()
-    .hxhg()
-    .swap()
-    .push()
-    .pop()
-    .reg_dt_sel()
-    .reg_wr_en()
-    .ld_value_en()
-    .mem_rd_en()
-    .mem_wr_en()
-    .[1:0] dbus_access()
-    .[1:0] dbus_addr_sel()
-    .[1:0] dbus_data_sel()
-    .sp_sel()
-    .sp_wr_en()
-    .operand_en()
-    .sreg_wr_en()
-    .sr_bit_en()
-    .sr_bit_sel()
-    .sr_bit_idx(sr_bit_idx)
-    .exe_32(exe_32)
-    .pc_wr_en()
-    .pc_sel(pc_sel)
-    .clr(set)
-    .set(set)
-
-    .alu_sel(alu_sel)
-    .alu_sop(alu_sop)
 );
 
 register u_register (
     .clock(clock),
     .resetb(resetb)
+);
+
+instruction_decoder u_instruction_decoder (
+    .clock(clock),
+    .resetb(resetb),
+    .t2(t2),
+
+    .instruction(instruction),
+
+    .cf(cf),
+    .zf(zf),          
+    .nf(nf),         
+    .vf(vf),
+    .sf(sf),
+    .hf(hf), 
+    .ltf(ltf),         
+    .gtf(gtf),  
+
+    .des_reg(des_reg),
+    .src_reg(src_reg),
+    .offset(offset),
+    .reg_value(reg_value),
+    .alu_value(alu_value), 
+    .n(n),
+
+    .halt(halt),
+    .move(move),
+    .mv_sp(mv_sp),
+    .hxhg(hxhg),
+    .swap(swap),
+    .push(push),
+    .pop(pop),
+    .reg_dt_sel(reg_dt_sel),
+    .reg_wr_en(reg_wr_en),
+    .ldl_value_en(ldl_value_en),
+    .ldh_value_en(ldh_value_en),
+    .mem_rd_en(mem_rd_en),
+    .mem_wr_en(mem_wr_en),
+    .dbus_access(dbus_access),
+    .dbus_addr_sel(dbus_addr_sel),
+    .dbus_data_sel(dbus_data_sel),
+    .sp_sel(sp_sel),
+    .sp_wr_en(sp_wr_en),
+    .operand_en(operand_en),
+    .sreg_wr_en(sreg_wr_en),
+    .sr_bit_en(sr_bit_en),
+    .sr_bit_sel(sr_bit_sel),
+    .sr_bit_idx(sr_bit_idx),
+    .exe_32(exe_32),
+    .pc_wr_en(pc_wr_en),
+    .pc_sel(pc_sel),
+    .clr(clr),
+    .set(set),
+    .alu_sel(alu_sel),
+    .alu_sop(alu_sop)  
 );
 
 alu u_alu (

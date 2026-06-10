@@ -7,6 +7,9 @@ input wire t5,
 
 input wire sp_sel,
 input wire sp_wr_en,
+input wire mv_sp,
+
+input wire [15:0] rs_data,
 
 output wire [15:0] sp_out
 );
@@ -18,7 +21,10 @@ always @(posedge clock or negedge resetb ) begin
         sp = 16'b0000000011111111;
     end
     else if(t5&&sp_wr_en)begin
-        if (sp_sel) begin
+        if(mv_sp)begin
+            sp <= rs_data;
+        end
+        else if (sp_sel) begin
             sp <= sp - 1;
         end
         else if (!sp_sel) begin

@@ -52,7 +52,7 @@ ST : mem_wr_en신호 set
          dbus_access = 11, dbus_addr_sel = 01, dbus_data_sel = 01
          data bus(rs/rd data) - register(mar/mbr)
 MOVE : reg_wr_en신호 set, move신호 set
-MVSP : sp_
+MVSP : sp_wr_en신호 set, mv_sp신호 set
 EXHG : reg_wr_en신호 set, hxhg신호 set
 SWAP : reg_wr_en신호 set, swap신호 set
 PUSH : push신호 set

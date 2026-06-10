@@ -15,12 +15,14 @@ input wire ldl_value_en,
 input wire ldh_value_en,
 
 input wire move,
+input wire mv_sp,
 input wire hxhg,
 input wire swap,
 
 input wire push,
 input wire pop,
 
+input wire [2:0] n,
 input wire clr,
 input wire set,
 
@@ -166,6 +168,19 @@ always @(posedge clock or negedge resetb) begin
             default: rs_data <= 16'b0;
         endcase
      end
+     else if(mv_sp)begin
+        case (src_reg)
+            3'b000: rs_data <= r0; 
+            3'b001: rs_data <= r1;
+            3'b010: rs_data <= r2;
+            3'b011: rs_data <= r3;
+            3'b100: rs_data <= r4;
+            3'b101: rs_data <= r5;
+            3'b110: rs_data <= r6;
+            3'b111: rs_data <= r7;
+            default: rs_data <= 16'b0;
+        endcase
+     end
     end
     else if (t5 && reg_wr_en) begin
          if(ldl_value_en)begin
@@ -246,28 +261,28 @@ always @(posedge clock or negedge resetb) begin
         end
         else if (clr) begin
              case (des_reg)
-                3'b000: begin r0 <= 16'b0; end 
-                3'b001: begin r1 <= 16'b0; end 
-                3'b010: begin r2 <= 16'b0; end 
-                3'b011: begin r3 <= 16'b0; end 
-                3'b100: begin r4 <= 16'b0; end 
-                3'b101: begin r5 <= 16'b0; end 
-                3'b110: begin r6 <= 16'b0; end 
-                3'b111: begin r7 <= 16'b0; end 
-                default: begin r0 <= 16'b0; end 
+                3'b000: begin r0[n] <= 16'b0; end 
+                3'b001: begin r1[n] <= 16'b0; end 
+                3'b010: begin r2[n] <= 16'b0; end 
+                3'b011: begin r3[n] <= 16'b0; end 
+                3'b100: begin r4[n] <= 16'b0; end 
+                3'b101: begin r5[n] <= 16'b0; end 
+                3'b110: begin r6[n] <= 16'b0; end 
+                3'b111: begin r7[n] <= 16'b0; end 
+                default: begin r0[n] <= 16'b0; end 
             endcase
         end
         else if (set) begin
               case (des_reg)
-                3'b000: begin r0 <= 16'b1; end 
-                3'b001: begin r1 <= 16'b1; end 
-                3'b010: begin r2 <= 16'b1; end 
-                3'b011: begin r3 <= 16'b1; end 
-                3'b100: begin r4 <= 16'b1; end 
-                3'b101: begin r5 <= 16'b1; end 
-                3'b110: begin r6 <= 16'b1; end 
-                3'b111: begin r7 <= 16'b1; end 
-                default: begin r0 <= 16'b1; end 
+                3'b000: begin r0[n] <= 16'b1; end 
+                3'b001: begin r1[n] <= 16'b1; end 
+                3'b010: begin r2[n] <= 16'b1; end 
+                3'b011: begin r3[n] <= 16'b1; end 
+                3'b100: begin r4[n] <= 16'b1; end 
+                3'b101: begin r5[n] <= 16'b1; end 
+                3'b110: begin r6[n] <= 16'b1; end 
+                3'b111: begin r7[n] <= 16'b1; end 
+                default: begin r0[n] <= 16'b1; end 
             endcase
         end
         else if(reg_dt_sel)begin
