@@ -158,7 +158,55 @@ instruction_register u_instruction_register (
 
 instruction_decoder u_instruction_decoder (
     .clock(clock),
-    .resetb(resetb)
+    .resetb(resetb),
+    .t2,
+
+    .[15:0] instruction,
+
+    .cf()
+    .zf()          
+    .nf()         
+    .vf()
+    .sf()
+    .hf() 
+    .ltf()         
+    .gtf()  
+
+    .[2:0] des_reg()
+    .[2:0] src_reg()
+    .[10:0] offset()
+    .[7:0] reg_value()
+    .[2:0] alu_value()
+
+    .halt()
+    .move()
+    .hxhg()
+    .swap()
+    .push()
+    .pop()
+    .reg_dt_sel()
+    .reg_wr_en()
+    .ld_value_en()
+    .mem_rd_en()
+    .mem_wr_en()
+    .[1:0] dbus_access()
+    .[1:0] dbus_addr_sel()
+    .[1:0] dbus_data_sel()
+    .sp_sel()
+    .sp_wr_en()
+    .operand_en()
+    .sreg_wr_en()
+    .sr_bit_en()
+    .sr_bit_sel()
+    .sr_bit_idx(sr_bit_idx)
+    .exe_32(exe_32)
+    .pc_wr_en()
+    .pc_sel(pc_sel)
+    .clr(set)
+    .set(set)
+
+    .alu_sel(alu_sel)
+    .alu_sop(alu_sop)
 );
 
 register u_register (

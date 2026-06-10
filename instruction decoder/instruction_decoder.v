@@ -136,7 +136,14 @@ always @(*) begin
     set_dec = 1'b0;
 
     case(opcode)
-        `LDI_Value:begin
+        `LDIL:begin
+            reg_dt_sel_dec = 1'b0;
+            reg_wr_en_dec = 1'b1;
+            ld_value_en_dec = 1'b1;
+            des_reg_dec = rd;
+            reg_value_dec = reg_v;
+        end
+        `LDIH:begin
             reg_dt_sel_dec = 1'b0;
             reg_wr_en_dec = 1'b1;
             ld_value_en_dec = 1'b1;
