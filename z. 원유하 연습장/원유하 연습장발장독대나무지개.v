@@ -1,9 +1,9 @@
 할 일
-15주차 액셀 파일 추가 및 변경 내용 alu 코드에 작성 
+1.  15주차 액셀 파일 추가 및 변경 내용 alu 코드에 작성 
 
-15주차 엑셀 파일 sreg 처럼 코드 관리
+2.  15주차 엑셀 파일 sreg처럼 코드 관리
 
-instruction_decoder.txt에 나온 내용 엑셀파일에 정리
+3.  instruction_decoder.txt에 나온 내용 엑셀파일에 정리
 
 
 
