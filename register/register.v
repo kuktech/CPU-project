@@ -11,7 +11,8 @@ input wire mem_rd_en,
 
 input wire operand_en,
 
-input wire ld_value_en,
+input wire ldl_value_en,
+input wire ldh_value_en,
 
 input wire move,
 input wire hxhg,
@@ -167,7 +168,7 @@ always @(posedge clock or negedge resetb) begin
      end
     end
     else if (t5 && reg_wr_en) begin
-         if(ld_value_en)begin
+         if(ldl_value_en)begin
             case (des_reg)
                 3'b000: r0[7:0] <= value;
                 3'b001: r1[7:0] <= value;
@@ -178,6 +179,19 @@ always @(posedge clock or negedge resetb) begin
                 3'b110: r6[7:0] <= value;
                 3'b111: r7[7:0] <= value;
                 default: r0[7:0] <= value;
+            endcase
+        end
+        else if(ldh_value_en)begin
+            case (des_reg)
+                3'b000: r0[15:8] <= value;
+                3'b001: r1[15:8] <= value;
+                3'b010: r2[15:8] <= value;
+                3'b011: r3[15:8] <= value;
+                3'b100: r4[15:8] <= value;
+                3'b101: r5[15:8] <= value;
+                3'b110: r6[15:8] <= value;
+                3'b111: r7[15:8] <= value;
+                default: r0[15:8] <= value;
             endcase
         end
         else if(move) begin

@@ -43,14 +43,16 @@ NOP : 아무 명령도 수행하지 않는다.
 HALT : 동작정지, halt신호 set, state control에 연결
 
 <Data transfer>
-LDI value : reg_wr_en신호 set, ld_value_en신호 set
-LDI Rs : reg_wr_en신호 set, mem_rd_en신호 set(register에 연결), 
+LDIL : reg_wr_en신호 set, ldl_value_en신호 set
+LDIH : reg_wr_en신호 set, ldh_value_en신호 set
+LD : reg_wr_en신호 set, mem_rd_en신호 set(register에 연결), 
          dbus_access = 10, dbus_addr_sel = 00, data_bus_sel = 00(data bus에 연결)
          data bus(dbus_in_data) - register(dbus_in_data)
-STI Rs : mem_wr_en신호 set
+ST : mem_wr_en신호 set
          dbus_access = 11, dbus_addr_sel = 01, dbus_data_sel = 01
          data bus(rs/rd data) - register(mar/mbr)
 MOVE : reg_wr_en신호 set, move신호 set
+MVSP : sp_
 EXHG : reg_wr_en신호 set, hxhg신호 set
 SWAP : reg_wr_en신호 set, swap신호 set
 PUSH : push신호 set
@@ -91,7 +93,8 @@ SUBB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_
 SUBC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 SUBBC : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 MUL : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
-MULB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+MULLB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
+MULHB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 DIV : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 DIVB : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set
 MOD : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_en신호 set

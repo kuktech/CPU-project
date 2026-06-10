@@ -30,7 +30,8 @@ module instruction_decoder (
     output reg pop,
     output reg reg_dt_sel,
     output reg reg_wr_en,
-    output reg ld_value_en,
+    output reg ldl_value_en,
+    output reg ldh_value_en,
     output reg mem_rd_en,
     output reg mem_wr_en,
     output reg [1:0] dbus_access,
@@ -81,7 +82,8 @@ reg push_dec;
 reg pop_dec;
 reg reg_dt_sel_dec;
 reg reg_wr_en_dec;
-reg ld_value_en_dec;
+reg ldl_value_en_dec;
+reg ldh_value_en_dec;
 reg mem_rd_en_dec;
 reg mem_wr_en_dec;
 reg [1:0] dbus_access_dec;
@@ -118,7 +120,8 @@ always @(*) begin
    
     mem_wr_en_dec = 1'b0;
     mem_rd_en_dec = 1'b0;
-    ld_value_en_dec = 1'b0;
+    ldl_value_en_dec = 1'b0;
+    ldh_value_en_dec = 1'b0;
     dbus_access_dec = 2'b0;
     dbus_addr_sel_dec = 2'b0;
     dbus_data_sel_dec = 2'b0;
@@ -137,16 +140,15 @@ always @(*) begin
 
     case(opcode)
         `LDIL:begin
-            reg_dt_sel_dec = 1'b0;
             reg_wr_en_dec = 1'b1;
-            ld_value_en_dec = 1'b1;
+            ldl_value_en_dec = 1'b1;
             des_reg_dec = rd;
             reg_value_dec = reg_v;
         end
         `LDIH:begin
             reg_dt_sel_dec = 1'b0;
             reg_wr_en_dec = 1'b1;
-            ld_value_en_dec = 1'b1;
+            ldh_value_en_dec = 1'b1;
             des_reg_dec = rd;
             reg_value_dec = reg_v;
         end
@@ -327,7 +329,7 @@ always @(*) begin
         `HALT:begin
             halt_dec = 1'b1;
         end
-        `LDI:begin
+        `LD:begin
             reg_wr_en_dec = 1'b1;
             mem_rd_en_dec = 1'b1;
             dbus_access_dec = 2'b10;
@@ -336,7 +338,7 @@ always @(*) begin
             des_reg_dec = rd;
             src_reg_dec = rs;
         end
-        `STI:begin
+        `ST:begin
             mem_wr_en_dec = 1'b1;
             dbus_access_dec = 2'b11;
             dbus_addr_sel_dec = 2'b01;
@@ -345,6 +347,12 @@ always @(*) begin
             src_reg_dec = rs;
         end
         `MV:begin
+            reg_wr_en_dec = 1'b1;
+            move_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
+        end
+        `MVSP:begin
             reg_wr_en_dec = 1'b1;
             move_dec = 1'b1;
             des_reg_dec = rd;
@@ -562,7 +570,15 @@ always @(*) begin
             src_reg_dec = rs;
             exe_32_dec = 1'b0;
         end
-        `MULB:begin
+        `MULLB:begin
+            operand_en_dec = 1'b1;
+            reg_wr_en_dec = 1'b1;
+            reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
+            des_reg_dec = rd;
+            src_reg_dec = rs;
+        end
+        `MULHB:begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
@@ -668,7 +684,8 @@ always @(posedge clock or negedge resetb) begin
         pop  <= 1'b0;
         reg_dt_sel <=1'b0;
         reg_wr_en <= 1'b0;
-        ld_value_en <=1'b0;
+        ldl_value_en <=1'b0;
+        ldh_value_en <=1'b0;
         mem_rd_en <= 1'b0;
         mem_wr_en <= 1'b0;
         dbus_access <= 2'b0;
@@ -702,7 +719,8 @@ always @(posedge clock or negedge resetb) begin
         pop  <= pop_dec;
         reg_dt_sel <= reg_dt_sel_dec;
         reg_wr_en <= reg_wr_en_dec;
-        ld_value_en <= ld_value_en_dec;
+        ldl_value_en <= ldl_value_en_dec;
+        ldh_value_en <= ldh_value_en_dec;
         mem_rd_en <= mem_rd_en_dec;
         mem_wr_en <= mem_wr_en_dec;
         dbus_access <= dbus_access_dec;
