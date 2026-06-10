@@ -1,13 +1,15 @@
 `define HALT 10'b0000000001
 
-`define LDI_Value 5'b00001
-`define LDI 10'b0001000000
-`define STI 10'b0001000001
+`define LD 10'b0001000000
+`define ST 10'b0001000001
+`define POP 10'b0001000010
+`define PUSH 10'b0001000011
+`define LDIL 5'b00001
+`define LDIH 5'b00011
 `define MV 10'b0001000100
-`define EXHG 10'b0001000101
+`define MVSP 10'b0001000101
 `define SWAP 10'b0001000110
-`define PUSH 10'b0001100000
-`define POP 10'b0001100001
+`define EXHG 10'b0010000111
 
 `define INC 10'b0010000000
 `define DEC 10'b0010000001
@@ -36,7 +38,8 @@
 `define SUBB 10'b0010100110
 `define SUBBC 10'b0010100111
 `define MUL 10'b0010101000
-`define MULB 10'b0010101010
+`define MULHB 10'b0010101011
+`define MULLB 10'b0010101010
 `define DIV 10'b0010101100
 `define DIVB 10'b0010101110
 `define MOD 10'b0010101101
@@ -49,7 +52,7 @@
 
 `define CMP 10'b0011100000
 
-`define CLR_SR 7'b0100000
+`define CLR_SR 7'b0100000    
 `define CLR_RD 7'b0100001
 `define SET_SR 7'b0100010
 `define SET_RD 7'b0100011
@@ -110,7 +113,8 @@
 `define AR_SUBB     5'b001_10
 `define AR_SUBBC    5'b001_11
 `define AR_MUL      5'b010_00
-`define AR_MULB     5'b010_10
+`define AR_MULHB    5'b010_11
+`define AR_MULLB    5'b010_10
 `define AR_DIV      5'b011_00
 `define AR_MOD      5'b011_01
 `define AR_DIVB     5'b011_10

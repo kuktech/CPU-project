@@ -169,15 +169,15 @@ always @(posedge clock or negedge resetb) begin
     else if (t5 && reg_wr_en) begin
          if(ld_value_en)begin
             case (des_reg)
-                3'b000: r0 <= {8'b00000,value};
-                3'b001: r1 <= {8'b00000,value};
-                3'b010: r2 <= {8'b00000,value};
-                3'b011: r3 <= {8'b00000,value};
-                3'b100: r4 <= {8'b00000,value};
-                3'b101: r5 <= {8'b00000,value};
-                3'b110: r6 <= {8'b00000,value};
-                3'b111: r7 <= {8'b00000,value};
-                default: r0 <= {8'b00000,value};
+                3'b000: r0[7:0] <= value;
+                3'b001: r1[7:0] <= value;
+                3'b010: r2[7:0] <= value;
+                3'b011: r3[7:0] <= value;
+                3'b100: r4[7:0] <= value;
+                3'b101: r5[7:0] <= value;
+                3'b110: r6[7:0] <= value;
+                3'b111: r7[7:0] <= value;
+                default: r0[7:0] <= value;
             endcase
         end
         else if(move) begin
