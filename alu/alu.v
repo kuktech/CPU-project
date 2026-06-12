@@ -8,7 +8,7 @@ input wire [15:0] r_operand,
 
 input wire [4:0] alu_sel,    
 input wire [4:0] alu_sop,     
-input wire [7:0] shift_amt,  
+input wire [2:0] shift_amt,  
 
 input wire alu_cf_in,            
 
