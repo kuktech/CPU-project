@@ -420,6 +420,7 @@ always @(*) begin
             operand_en_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
             reg_dt_sel_dec = 1'b1;
+            sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
         end
         `SHL:begin

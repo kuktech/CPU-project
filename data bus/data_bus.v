@@ -36,23 +36,23 @@ always @(*) begin
     dwrb = 1'b1;
     dcsb = 1'b1;
      case({dbus_access,dbus_addr_sel,dbus_data_sel}) 
-            6'b100000:begin   //load
+            6'b100000:begin   
                       dcsb = 1'b0;
                       drdb = 1'b0;
                       end
-            6'b110101:begin //store
+            6'b110101:begin
                       dcsb = 1'b0;
                       dwrb = 1'b0;
             end  
-            6'b111010:begin //push
+            6'b111010:begin 
                       dcsb = 1'b0;
                       dwrb = 1'b0;
             end   
-            6'b101100: begin//pop , ret
+            6'b101100: begin
                       dcsb = 1'b0;
                       drdb = 1'b0;
             end  
-             6'b111011: begin//call
+             6'b111011: begin
                       dcsb = 1'b0;
                       dwrb = 1'b0;
              end
@@ -78,21 +78,21 @@ always @(posedge clock or negedge resetb) begin
          dwrb_pin <= dwrb;
          dcsb_pin <= dcsb;
         case({dbus_access,dbus_addr_sel,dbus_data_sel}) 
-            6'b100000:begin   //load
+            6'b100000:begin   
                       mar <= rs_data;    
                       end
-            6'b110101:begin //store
+            6'b110101:begin 
                       mar <= rd_data;  
                       mbr <= rs_data;     
                       end  
-            6'b111010:begin //push
+            6'b111010:begin 
                       mar <= sp_in-1'b1;
                       mbr <= rs_data;    
                       end   
-            6'b101100: begin//pop , ret
+            6'b101100: begin
                       mar <= sp_in;
                       end  
-            6'b111011:begin//call
+            6'b111011:begin
                       mar <= sp_in-1'b1;
                       mbr <= pc_in;
                      end
@@ -101,10 +101,10 @@ always @(posedge clock or negedge resetb) begin
     end
     else if(t4) begin 
          case({dbus_access,dbus_addr_sel,dbus_data_sel}) 
-            6'b100000:begin   //load
+            6'b100000:begin   
                       dbus_in_data <= dmem_rdata;
                       end  
-            6'b101100:begin//pop , ret
+            6'b101100:begin
                       dbus_in_data <= dmem_rdata;
                       end  
         endcase 

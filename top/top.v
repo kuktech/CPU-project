@@ -15,20 +15,16 @@ output wire drdb_pin,
 output wire dwrb_pin,
 output wire dcsb_pin
 );
-//state control
 wire t1;
 wire t2;
 wire t3;
 wire t4;
 wire t5;
 
-//program counter
 wire [15:0] next_pc;
 
-//stack pointer
 wire [15:0] sp_out;
 
-//status register
 wire cf;
 wire zf;
 wire nf;
@@ -39,10 +35,8 @@ wire gtf;
 wire ltf;
 wire cf_out;
 
-//instruction register
 wire [15:0] instruction;
 
-//instruction decoder
 wire [2:0] des_reg;
 wire [2:0] src_reg;
 wire [10:0] offset;
@@ -80,13 +74,11 @@ wire set;
 wire [4:0] alu_sel;
 wire [4:0] alu_sop;
 
-//register
 wire [15:0] r_operand;
 wire [15:0] l_operand;
 wire [15:0] rd_data;
 wire [15:0] rs_data;
 
-//alu
 wire [15:0] alu_result0;
 wire [15:0] alu_result1;
 
@@ -99,10 +91,8 @@ wire alu_hf;
 wire alu_gtf;
 wire alu_ltf;
 
-//program bus
 wire [15:0] pbus_in_data;
 
-//data bus
 wire [15:0] dbus_in_data;
 
 state_control u_state_control (
