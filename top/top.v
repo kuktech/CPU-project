@@ -127,6 +127,7 @@ stack_pointer u_stack_pointer (
     .sp_sel(sp_sel),
     .sp_wr_en(sp_wr_en),
     .mv_sp(mv_sp),
+    .rs_data(rs_data),
     .sp_out(sp_out)
 );
 
