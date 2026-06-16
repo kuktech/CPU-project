@@ -69,6 +69,7 @@ wire [2:0] sr_bit_idx;
 wire exe_32;
 wire pc_wr_en;
 wire [1:0] pc_sel;
+wire call;
 wire clr;
 wire set;
 wire [4:0] alu_sel;
@@ -112,6 +113,7 @@ program_counter u_program_counter (
     .pc_in(dbus_in_data),
     .pc_wr_en(pc_wr_en),
     .pc_sel(pc_sel),
+    .call(call),
     .t1(t1),
     .t3(t3),
     .t5(t5),
@@ -246,6 +248,7 @@ instruction_decoder u_instruction_decoder (
     .exe_32(exe_32),
     .pc_wr_en(pc_wr_en),
     .pc_sel(pc_sel),
+    .call(call),
     .clr(clr),
     .set(set),
     .alu_sel(alu_sel),

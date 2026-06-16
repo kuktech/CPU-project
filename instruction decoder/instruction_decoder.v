@@ -49,6 +49,7 @@ module instruction_decoder (
     output reg exe_32,
     output reg pc_wr_en,
     output reg [1:0] pc_sel,
+    output reg call,
     output reg clr,
     output reg set,
 
@@ -103,6 +104,7 @@ reg [2:0] sr_bit_idx_dec;
 reg exe_32_dec;
 reg pc_wr_en_dec;
 reg [1:0] pc_sel_dec;
+reg call_dec;
 reg clr_dec;
 reg set_dec;
 
@@ -141,6 +143,7 @@ always @(*) begin
     exe_32_dec = 1'b0;
     pc_wr_en_dec = 1'b0;
     pc_sel_dec = 2'b00;
+    call_dec = 1'b0;
     clr_dec = 1'b0;
     set_dec = 1'b0;
 
@@ -159,6 +162,7 @@ always @(*) begin
             reg_value_dec = reg_v;
         end
         `CALL:begin
+            call_dec = 1'b1;
             sp_wr_en_dec = 1'b1;
             sp_sel_dec = 1'b1;
             pc_wr_en_dec = 1'b1;
@@ -171,10 +175,12 @@ always @(*) begin
         `BR:begin
             pc_wr_en_dec = 1'b1;
             pc_sel_dec = 2'b10;
+            offset_dec = os;
         end
         `BRR:begin
             pc_wr_en_dec = 1'b1;
             pc_sel_dec = 2'b01;
+            offset_dec = os;
         end
         `BRNZ:begin
             if(!zf) begin
@@ -713,6 +719,7 @@ always @(posedge clock or negedge resetb) begin
         exe_32 <= 1'b0;
         pc_wr_en <= 1'b0;
         pc_sel <= 2'b00;
+        call <= 1'b0;
         clr <= 1'b0;
         set <= 1'b0;
     end
@@ -750,6 +757,7 @@ always @(posedge clock or negedge resetb) begin
         exe_32 <= exe_32_dec;
         pc_wr_en <= pc_wr_en_dec;
         pc_sel <= pc_sel_dec;
+        call <= call_dec;
         clr <= clr_dec;
         set <= set_dec;
     end

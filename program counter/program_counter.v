@@ -6,6 +6,7 @@ input wire [15:0] pc_in,
 
 input wire pc_wr_en,
 input wire [1:0] pc_sel,
+input wire call,
 
 input wire t1,
 input wire t3,
@@ -27,15 +28,25 @@ always @(posedge clock or negedge resetb) begin
      else if (t1) begin
         pc <= pc + 1'b1;
     end
-    else if(pc_wr_en&&t5)begin
-    case (pc_sel)
-        2'b01: pc <= pc + offset_ext;
-        
-        2'b10: pc <= offset_ext;
-       
-        2'b11: pc <= pc_in;
-        default: pc <= pc;
-    endcase
+    else if(pc_wr_en)begin
+        case (pc_sel)
+            2'b01: begin
+                if ((call && t5) || (!call && t3)) begin
+                    pc <= pc + offset_ext;
+                end
+            end
+            2'b10: begin
+                if (t3) begin
+                    pc <= offset_ext;
+                end
+            end
+            2'b11: begin
+                if (t5) begin
+                    pc <= pc_in;
+                end
+            end
+            default: pc <= pc;
+        endcase
     end
 end
 
