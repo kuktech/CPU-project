@@ -1,5 +1,4 @@
 `timescale 1ns/1ps
-
 module cpu_tb;
 reg clock;
 reg resetb;
@@ -34,17 +33,10 @@ top u_top (
 reg [15:0] pgm_mem [0:16'hffff];
 reg [15:0] data_mem [0:16'hffff];
 
-wire [15:0] pgm_addr = pbus_in_address[15:1];
-wire [15:0] data_addr = mar[15:1];
+wire [15:0] pgm_addr = pbus_in_address;
+wire [15:0] data_addr = mar;
 
 integer i;
-initial begin
-    for (i = 0; i < 16'hffff; i = i+1) begin
-        pgm_mem[i] = i;
-        data_mem[i] = i;
-    end
-  
-end
 
 always @(*) begin
     if (prdb_pin == 0 && pcsb_pin == 0)
@@ -70,7 +62,7 @@ initial begin
     end
 end
 
-always #50 clock = ~clock;
+always #100 clock = ~clock;
 
 initial begin
     clock       = 1'b0;
@@ -93,7 +85,7 @@ initial begin
     end
 end
 
-parameter TEST_IDX = 0; 
+parameter TEST_IDX = 6; 
 
 task load_all_instructions;
 begin
@@ -165,26 +157,26 @@ begin
     pgm_mem[65] = 16'hC80A;  // BRGT +10
     pgm_mem[66] = 16'hD00A;  // BRNLT +10
     pgm_mem[67] = 16'hD80A;  // BRLT +10
+    pgm_mem[68] = 16'h0A04;  // LDIL R2, #4
+    pgm_mem[69] = 16'h1221;  // ST (R2), R1
+    pgm_mem[70] = 16'h1120;  // LD R1,(R1)
 end
 endtask
 
 initial begin
-    // 전체 NOP으로 초기화
+  
     for (i = 0; i < 16'hffff; i = i+1)
         pgm_mem[i] = 16'h0000;
 
-    // 명령어 테이블 로드
+    for (i = 0; i < 16'hffff; i = i+1)
+        data_mem[i] = 16'h0000;
+
     load_all_instructions;
-
-    // TEST_IDX 명령어만 pgm_mem[0]에 복사, 이후 HALT
-    pgm_mem[0] = pgm_mem[TEST_IDX];
-    pgm_mem[1] = 16'h0001;  // HALT
-
-    // 레지스터 초기값 설정용 선행 명령어가 필요하면 여기에 추가
-    // ex) R1=0x0010, R2=0x0005 세팅 후 테스트 명령어 실행
-    // pgm_mem[0] = 16'h0910;  // LDIL R1, #0x10
-    // pgm_mem[1] = 16'h0A05;  // LDIL R2, #0x05
-    // pgm_mem[2] = pgm_mem[TEST_IDX];
-    // pgm_mem[3] = 16'h0001;  // HALT
+    pgm_mem[0] = 16'h0000; 
+    pgm_mem[1] = 16'h0A04;
+    pgm_mem[2] = 16'h1043;
+    pgm_mem[3] = 16'h1102; 
+    pgm_mem[4] = 16'h0001;       
 end
+
 endmodule

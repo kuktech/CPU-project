@@ -313,7 +313,7 @@ always @(posedge clock or negedge resetb) begin
                 endcase
             end
         end
-        else if(!reg_dt_sel)begin 
+        else if(!reg_dt_sel && mem_rd_en)begin 
             if(pop)begin
                 case (des_reg)
                     3'b000: r0 <= dbus_in_data;

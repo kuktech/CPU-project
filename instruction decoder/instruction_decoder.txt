@@ -58,7 +58,7 @@ SWAP : reg_wr_en신호 set, swap신호 set
 PUSH : push신호 set
        sp_sel신호 set, sp_wr_en신호 set(stack pointer)
        dbus_access = 11, dbus_addr_sel = 10, dbus_data_sel = 10
-POP : pop신호 set, reg_wr_en신호 set
+POP : pop신호 set, reg_wr_en신호 set, mem_rd_en신호 set
       sp_wr_en신호 set
       dbus_access = 10, dbus_addr_sel = 11, dbus_data_sel = 00
 

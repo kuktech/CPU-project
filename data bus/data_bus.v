@@ -24,8 +24,10 @@ module data_bus(
     output reg [15:0] mbr,
     output reg [15:0] mar,
 
-    output reg[15:0] dbus_in_data
+    output wire[15:0] dbus_in_data
 );
+
+assign dbus_in_data = dmem_rdata;
 
 reg drdb;
 reg dwrb;
@@ -71,45 +73,47 @@ always @(posedge clock or negedge resetb) begin
         dcsb_pin <= 1'b1;
         mar <= 16'b0;
         mbr <= 16'b0;
-        dbus_in_data <=16'b0;
     end
     else if(t3) begin
-         drdb_pin <= drdb;
-         dwrb_pin <= dwrb;
-         dcsb_pin <= dcsb;
         case({dbus_access,dbus_addr_sel,dbus_data_sel}) 
             6'b100000:begin   
                       mar <= rs_data;    
                       end
             6'b110101:begin 
                       mar <= rd_data;  
-                      mbr <= rs_data;     
+                      
                       end  
             6'b111010:begin 
                       mar <= sp_in-1'b1;
-                      mbr <= rs_data;    
+                      
                       end   
             6'b101100: begin
                       mar <= sp_in;
                       end  
             6'b111011:begin
                       mar <= sp_in-1'b1;
-                      mbr <= pc_in;
+                      
                      end
      
         endcase          
     end
     else if(t4) begin 
-         case({dbus_access,dbus_addr_sel,dbus_data_sel}) 
-            6'b100000:begin   
-                      dbus_in_data <= dmem_rdata;
-                      end  
-            6'b101100:begin
-                      dbus_in_data <= dmem_rdata;
-                      end  
+	drdb_pin <= drdb;
+         dwrb_pin <= dwrb;
+         dcsb_pin <= dcsb;
+         case({dbus_access,dbus_addr_sel,dbus_data_sel})
+         6'b111010: begin
+            mbr <= rs_data;
+          end
+         6'b110101: begin
+            mbr <= rs_data;
+        end
+        6'b111011: begin
+            mbr <= pc_in;
+        end 
         endcase 
     end
-    if (t5) begin
+    else if (t5) begin
             drdb_pin <= 1'b1;
             dwrb_pin <= 1'b1;
             dcsb_pin <= 1'b1;

@@ -116,7 +116,7 @@ always @(*) begin
 
     halt_dec = 1'b0;
     move_dec = 1'b0;
-    mv_sp = 1'b0;
+    mv_sp_dec = 1'b0;
     hxhg_dec = 1'b0;
     swap_dec = 1'b0;
     push_dec = 1'b0;
@@ -386,6 +386,7 @@ always @(*) begin
             src_reg_dec = rs;
         end
         `POP:begin
+	        mem_rd_en_dec = 1'b1;
             sp_wr_en_dec = 1'b1;
             pop_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
