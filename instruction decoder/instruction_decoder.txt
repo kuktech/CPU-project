@@ -128,3 +128,5 @@ BRR : pc_wr_en신호 set, pc_sel = 01
 <cond.Branch>
 flag조건 참일시 : pc_wr_en신호 set, pc_sel = 01
 flag조건 거짓일시 : 동작 없음
+
+아 시발
