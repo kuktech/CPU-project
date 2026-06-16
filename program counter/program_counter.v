@@ -27,17 +27,13 @@ always @(posedge clock or negedge resetb) begin
      else if (t1) begin
         pc <= pc + 1'b1;
     end
-    else if(pc_wr_en)begin
+    else if(pc_wr_en&&t5)begin
     case (pc_sel)
-        2'b01: if(t3)begin
-                pc <= pc + offset_ext;
-            end
-        2'b10: if(t3)begin
-                pc <= offset_ext;
-            end
-        2'b11: if(t5)begin
-                pc <= pc_in;
-            end
+        2'b01: pc <= pc + offset_ext;
+        
+        2'b10: pc <= offset_ext;
+       
+        2'b11: pc <= pc_in;
         default: pc <= pc;
     endcase
     end
