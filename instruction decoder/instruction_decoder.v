@@ -362,7 +362,6 @@ always @(*) begin
         end
         `MVSP:begin
             sp_wr_en_dec = 1'b1;
-            reg_wr_en_dec = 1'b1;
             mv_sp_dec = 1'b1;
             src_reg_dec = rs;
         end
