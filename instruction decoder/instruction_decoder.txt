@@ -118,7 +118,7 @@ NOR : operand_en신호 set, reg_wr_en신호 set, reg_dt_sel신호 set, sreg_wr_e
 <Subroutine>
 Call target : sp_wr_en신호 set, sp_sel신호 set, pc_wr_en신호 set, pc_sel = 01
               dbus_access = 11 , dbus_addr_sel = 10 , dbus_data_sel = 11
-RET : sp_wr_en신호 set, pc_wr_en신호 set, pc_sel = 11
+RET : sp_wr_en신호 set, pc_wr_en신호 set, pc_sel = 11 
       dbus_access = 10 , dbus_addr_sel = 11, dbus_data_sel = 00
 
 <Branch>

@@ -577,7 +577,7 @@ always @(*) begin
             sreg_wr_en_dec = 1'b1;
             des_reg_dec = rd;
             src_reg_dec = rs;
-            exe_32_dec = 1'b0;
+            exe_32_dec = 1'b1;
         end
         `MULLB:begin
             operand_en_dec = 1'b1;
@@ -666,6 +666,7 @@ always @(*) begin
             src_reg_dec = rs;
         end
         `RET:begin
+            pc_wr_en_dec = 1'b1;
             sp_wr_en_dec = 1'b1;
             pc_sel_dec = 2'b11;
             dbus_access_dec = 2'b10;

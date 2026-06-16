@@ -177,7 +177,7 @@ register u_register (
     .mem_rd_en(mem_rd_en),
     .operand_en(operand_en),
     .ldl_value_en(ldl_value_en),
-    .ldh_value_en(ldl_value_en),
+    .ldh_value_en(ldh_value_en),
     .move(move),
     .mv_sp(mv_sp),
     .hxhg(hxhg),
@@ -253,6 +253,8 @@ instruction_decoder u_instruction_decoder (
 );
 
 alu u_alu (
+    .clock(clock),
+    .resetb(resetb),
     .t3(t3),
     .l_operand(l_operand),
     .r_operand(r_operand),

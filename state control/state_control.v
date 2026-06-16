@@ -28,7 +28,7 @@ always @(posedge clock or negedge resetb) begin
             5'b00100:  rotator <= 5'b00010;
             5'b00010:  rotator <= 5'b00001;
             5'b00001:  rotator <= 5'b10000;
-            default:   rotator <= 5'b10000; 
+            default:   rotator <= 5'b00000; 
         endcase
     end
 end
