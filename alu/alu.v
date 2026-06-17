@@ -1,4 +1,4 @@
-`include "1.defines/define.vh"
+`include "define.vh"
 module alu(
 input wire clock,
 input wire resetb,
