@@ -1,4 +1,4 @@
-clock cycle마다 t1 t2 t3 t4 t5타이밍신호를 각 블록들에 전달.
+clock cycle마다 t1 t2 t3 t4 t5 타이밍 신호를 블록들의 동작에 맞게 전달한다.
 Rotator로 구성 
 clear/ResetB : Sequence counter <=000;
             Rotator <= 10000
@@ -11,9 +11,11 @@ mem(RD) <- RS , RD <- mem(RS)(RD접근은 t5에서, load buffer에 저장)
 t5 : register저장
 RD <- RD + RS에서 RD에 저장하는 단계
 
-예시
-t2 : MAR = RS , LDI,STI의 경우, ALU가 필요없음, data bus에서 저장
-t4 : MBR(load buffer) = mem(MAR)
-t5 : RD <- load buffer
+halt명령어의 경우 파이프라인 설계를 고려했을 때, decoder에서 halt제어신호가 set된후
+t3에서 시스템이 종료되면 다른 명령어들이 동작을 다 마치기 못하기에, 반드시 t5에서 동작
+되어야 한다. 
+
+halt가 실행되면, case문의 default가 무한히 반복되어 타이밍 제어신호가 생성되지 않는다.
+초기화가 되기 전까지 유지된다.
 
 

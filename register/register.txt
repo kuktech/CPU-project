@@ -1,28 +1,19 @@
-곱셉연산 등은 결과비트가 32비트이므로, register 2개에 저장해야 한다. 
-exe_32 : ALU결과값이 32비트인 경우 set하여 register블록으로 전송.
+명령어에 따라 레지스터 데이터를 전송하는 동작은 t3에서,
+레지스터에 데이터를 저장하는 동작은 t5에서 동작된다.
 
-instruction decoder block에서 des/src_reg를 받아 해당 register번호해석.
+각 제어신호의 설명은 instruction decoder에 있다.
 
-T3에서 레지스터 값제공
+총 8개의 레지스터이며, 내부 블록으로 동작한다.
 
-T4에서 data memory에 저장할 레지스터 값을 data bus에 제공
+temp_des,temp_src는 move와 HXHG명령어 동작에 사용된다.
 
-T5에서 레지스터 저장진행 : register write enable비트 필요
-enable비트는 instruction decoder에서 제어신호생성과 함께 정의됨
+alu로 전송되는 l/r operand_en의 경우 t3에서 연산이 동작되기에 동일한 시점에 전송할 경우
+연산이 되지 않기 때문에 조합논리로 연결하였다.
 
-reg_dt_sel : ALU결과를 저장할지, data memory값을 저장할지 선택.
-instruction decoder에서 설정.
+rd_data와 rs_data는 data bus로 전송되며 data memory 쓰기 동작에 사용된다.
 
-mem(Rd) <- Rs 경우,  mem_wr_en신호가 decoder에서 설정필요.
-T2에서 Rd의 값을 MAR에 저장하여 data bus와 연결, Rs값을 MBR에 저장.
-T4에서 data bus로 메모리에 접근하여 저장.
-T5에서 저장동작 없음.
+alu_result0와 alu_result1는 alu의 연산결과를 t5에 저장할 때 사용된다.
 
+dbus_in_data는 data memory 읽기 데이터를 data bus를 통해 입력된다.
 
-des_reg, src_reg로 레지스터를 선택
-선택된 레지스터에 값에 
-
-t3에서 ALU연산에 필요한 rd,rs신호는 t3이전에 전송되어야 안정적이므로
-t2에서 rd,rs에 저장.
-
-EXHG , SWAP명령어는 decoder의 제어신호를 입력받아 내부에서 수행
+value는 LDIL,LDIH 명령어 동작에 사용된다.

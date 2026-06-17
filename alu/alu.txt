@@ -1,6 +1,29 @@
-exe_32비트는 제어신호로 구분되므로 decoder에서 정의
+alu는 cpu의 각종 연산을 담당하며 t3에서 동작한다.
 
-alu_sel : 명령어의 opcode 연결 (instruction decoder)
-alu_sop : 명령어의 sop연결 (instruction decoder)
-shift_amt : shift & rotate 명령어의 value전달
-cf_in : alu에 사용되는 carry bit 전달
+l_operand와 r_operand는 register에서 전송된 연산데이터이다.
+
+alu_sel과 alu_sop는 16bit 명령어의 opcode와 sop1,2를 각각 연결한신호이며,연산명령어를
+case로 구분하여 해당하는 연산을 수행하도록 한다.
+
+shift_amt는 Shift&rotate 동작의 value값이다.
+
+alu_cf_in은 status register의 carry flag를 연산에 사용하므로 연결하였다.
+
+alu_flag bit들은 각 연산결과에 따라 갱신해야 할 flag를 status register에 연결하였다.
+flag갱신은 t5에서 이뤄진다.
+
+
+내부 연산에 사용되는 변수들이 나열되어 있다. 각 변수들에 대한 설명은 코드의 연산으로 
+대체한다.
+
+그러나 alu_result0_dec, alu_result1_dec , alu_flag_dec들은 전체블록의 동작방식을 설명
+하는 데에 필요하다. 모든 연산자체는 always@(*) 내에서 조합논리로 구성되었는데, 연산의
+결과값들은 t5까지 레지스터에 저장되어야 한다. 따라서 조합논리연산의 결과를 내부 변수에 
+저장한 뒤, 순차회로(아래 always구문확인)의 t3에서 외부 출력신호에 저장하는 방식을 
+사용하였다.
+
+MUL과 DIV의 경우 단순연산자가 아닌 실제회로 로직으로 구성되었다.
+
+exe_32의 경우, 본래 MUL곱하기연산의 결과가 17비트 이상이면 set되도록하여 두 개의 레지스터에
+저장되도록 해야 하나, 상위비트의 0까지 결과값으로 간주하여 이곳이 아니라 
+제어신호로 set되도록 하였다.

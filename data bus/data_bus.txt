@@ -1,3 +1,17 @@
+데이터 버스는 CPU내부와 외부 data memory의 데이터 이동경로이다.
+t2에서 명령어가 디코드 되어 제어신호들이 생성되면, t3에서 해석하여 memory에 입력될 주소를 
+mar에 적재한다.
+t4에서 메모리의 접근이 발생한다.
+
+제어신호의 조합이 복잡한 형태이다. dbus_access, dbus_addr_sel, dbus_data_sel
+는 각각 명령어의 종류, 주소의 출저, 데이터의 출저를 지정한다. 비트선정의 구체적인
+이유는 없으므로 전체 6bit조합이 어떤 명령어를 수행하는지만 파악하면 충분하다.
+100000 : LD
+110101 : ST
+111010 : push
+101100 : pop
+111011 : call
+
 dbus_access : 2비트,명령어가 data memory를 읽는지,쓰는지를 선택
 00 사용x , 10 read access, 11 write access
 
@@ -6,19 +20,25 @@ dbus_addr_sel : 2비트,memory address의 출처를 지정.
 
 dbus_data_sel : 2비트,Data memory에 쓸 data의 출처를 지정.
 
-RDb,WRb : active low, dbus_access에 따라 data bus에서 설정.
 
 
+rd_data와 rs_data는 레지스터 데이터값이다. 명령어에 따라 mar,mbr에 들어가는 경우다 다르다.
 
-push의 경우, sp_in의 값을 -1한 다음 data memory에 접근해야 한다.
+sp_in은 pop/push의 경우 sp값을 mar에 저장한다.
 
+pc_in은 CALL명령어를 위해 pc값을 mbr에 저장한다.
 
--data memory로 전송될 제어신호들
+-다음신호들은 data memory로 전송될 신호들이다
 dcsb_pin : active low, chip select
 drdb_pin : negedge , memory read enable
 dwrb_pin : negedge , memory write enable
+data bus에서 생성하는 외부 memory제어신호의 경우, 타이밍제어를 받지 않는상시작동 제어신호
+이므로, 메모라 접근이 끝나면 T5에서 초기화 시켜줘야한다는 점이 내부 CPU에서 타이밍제어에 
+따라 동작하는 instructin decoder에서의 제어신호와의 차이점이다.
 
-data bus에서 생성하는 외부 memory제어신호의 경우, 타이밍제어를 받지 않는
-상시작동 제어신호이므로, 메모라 접근이 끝나면 T5에서 초기화 시켜줘야한다는 
-점이 내부 CPU에서 타이밍제어에 따라 동작하는 instructin decoder에서의 
-제어신호와의 차이점이다.
+추가로 push명령어와 call의 경우 mar에 sp값을 뺀 뒤에 mar에 저장하는데, stack pointer내부의
+sp값도 확인해보면 t5에 같은 동작을 수행한다.
+
+
+
+

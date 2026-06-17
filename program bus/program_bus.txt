@@ -1,5 +1,7 @@
-program counter에서 pc입력 -> pbus in address로 memory에 주소 전송
--> memory에서 명령어 program data입력 -> pbus in data로 instruction
-register로 전송
+program bus는 명령어 동작에 사용되는 data bus와는 달리 명령어 인출에만 사용되기 때문에
+단순하다. 
 
-wr_en신호는 instructin register에서 입력
+
+program counter에서 pc입력 -> pbus in address로 memory에 주소 전송
+-> memory에서 명령어 program data입력 -> pbus in data로 instruction register에 입력
+

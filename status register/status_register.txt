@@ -1,7 +1,8 @@
-sreg_wr_en이 instruction decoder에서 ALU연산으로 동작될시 set.
+sreg_wr_en이 instruction decoder에서 ALU연산으로 동작될시 set된다.
+
 T5에서 연산결과에 대한 flag가 갱신됨.
 
-T2 조건분기 검사에서 flag값이 instruction decoder에 입력.
+T2 조건분기 검사에서 flag값이 instruction decoder에 입력된다.
 
 ALU block에서 flag를 결정하고, SR block으로 넘겨서 저장하는 방식.
 ALU block에서 서브 모듈을 정의하여 flag를 정의하는 방식.
@@ -10,7 +11,7 @@ carry와 overflow는 ALU내부에서 결정해서 flag 서브 모듈로 넘겨�
 조건분기검사는 instruction decoder에 연결하여 검사, assign문으로 할당된
 신호들을 연결.
 
-cf_out : alu carry bit 연산
+cf_out : alu carry bit 연산에 사용된다.
 
 sreg_wr_en : ALU 연산 결과를 갱신 허용신호
 

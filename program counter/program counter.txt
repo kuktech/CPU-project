@@ -1,26 +1,13 @@
-state control의 t1일때 명령어 인출 실행
-pc : 현재의 pc값 (다음 명령어), ALU, program bus(instruction register)
+t1 명령어 인출 단계에서 pc의 값을 단순히 증가시킨 뒤 program bus로 입력시키거나,
+분기 또는 RET에 따라 pc값이 변경되기도 한다.
 
-t1_wr : pc + 2
-t3_wr : pc + offset (분기 명령어 실행시), instruction decoder
+pc_in은 RET명령어에 따라 data memory 값이 data bus를 통해 pc에 저장된다.
 
-pc_wr_en : t1_wr,t3_wr이 들어올 떄 함께 set되어야 함, instruction decoder에서 정의.
-pc_sel[1:0] : MSB로 t1 , t3를 선택하고, LSB는 t3_wr이 1인경우에, pc+offset또는 subroutin
+pc_wr_en은 분기 또는 ret명령어가 실행되면 set된다.
 
-ALU블록이 아니라, 블록 내부의 덧셈기를 정의하는 것임, ALU의 덧셈기가 아니다.
-제어신호에서 오는 분기값을 그냥 + 해주면 된다..
+pc_sel은 분기 또는 ret명령어의 제어신호 세분화를 줄이기 위해 2비트로 선언되었다.
+01 : 분기명령어
+10 : BR
+11 : RET
 
-t1~t5 타이밍신호를 state control이 반든 일반신호이기에 안정적인 clock이 아니다.
-따라서 always@(t1) 같이 쓰면 안되고, if문의 조건으로 사용한다.
-always @(posedge clk)
-    if (t1)
-
-CALL target : data memory와 연결(data bus에 의해)
-RET : SP의 memory값을 data bus로 연결받음
-
-분기명령어는, T3에서 PC값만 적재하고, 다음 T1부터 실행준비.
-이때 t4,t5에는 아무 동작 없음.
-
-
-call과 분기는 함께 설정하면 : sp 전송은 상시 설정
-ret : t5시점에서 pc값을 저장
+offset은 decoder에서 입력되어 분기 또는 call명령어에 사용된다.

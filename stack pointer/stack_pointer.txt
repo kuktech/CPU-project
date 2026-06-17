@@ -1,8 +1,11 @@
-sp_sel : push/pop선택, instruction decoder.
-sp_wr_en : instruction decoder에서 sp사용시 set.
+sp 초기값은 16h00ff이다. 
+push/pop에서 sp값의 갱신은 t5에서 진행되며, push의 경우 data bus에서 sp-1이 mar에 저장된다.
 
-t4에서 메모리 접근하여 데이터를 저장
-t5에서 sp값 업데이트, t5_wr은 정의할 필요 없음.(t5 타이밍 신호)
+sp_wr_en은 sp를 사용하는 모든 명령어에서 set된다.
 
+mv_sp는 register의 값을 sp로 변경한다.
+
+push/pop 별도의 제어신호를 만들지 않았다. sp_sel은 set하면 push이고 clear하면 pop이다.
+sp_wr_en과 함께 sp_sel을 0으로 유지해도 오류가능성은 없다.
 
 

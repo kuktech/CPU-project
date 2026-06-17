@@ -1,7 +1,6 @@
-state control의 t1에서 명령어 인출실행
-instruction[15:0] : 명령어, program memory의 data bus로 전송
-instruction decoder에 연결
+이전 명령어 사이클에서 증가된 pc값이 program bus를 통해 program memory에 도착하면
+주소에 해당하는 명령어가 program bus의 pbus_in_data를 통해 명령어로 저장된다.
 
-wr_en : t1에서 명령어인출 , t3에서 분기된 명령어저장
-branch_en : 분기 명령어 실행 시, instruction decoder에서 입력받음
+코드를 보면 내부에 명령어값을 저장하는 역할이기보다 명령어를 decoder로 이동시키는 역할이다.
+명령어 인출단계에 오류는 없기에 유지했다.
 
