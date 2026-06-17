@@ -173,10 +173,10 @@ initial begin
 
     load_all_instructions;
     pgm_mem[0] = 16'h0000; 
-    pgm_mem[1] = 16'h0A04;
-    pgm_mem[2] = 16'h1043;
-    pgm_mem[3] = 16'h1102; 
-    pgm_mem[4] = 16'h0001;       
+    pgm_mem[1] = 16'h600A;
+    pgm_mem[12] = 16'h0000; 
+   
+    pgm_mem[13] = 16'h0001;       
 end
 
 endmodule
