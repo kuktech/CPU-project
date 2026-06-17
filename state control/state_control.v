@@ -18,7 +18,7 @@ always @(posedge clock or negedge resetb) begin
     if(!resetb)begin
         rotator <= 5'b10000;
     end
-    else if(halt)begin
+    else if(halt&&t5)begin
         rotator <=5'b00000;
     end
     else begin
