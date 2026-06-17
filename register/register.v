@@ -80,6 +80,32 @@ always @(*) begin
         3'b111: temp_des = r7;
         default: temp_des = 16'b0;
     endcase
+    r_operand = 16'b0;
+    l_operand = 16'b0;
+    if(operand_en)begin
+        case (src_reg)
+            3'b000: r_operand = r0;
+            3'b001: r_operand = r1;
+            3'b010: r_operand = r2;
+            3'b011: r_operand = r3;
+            3'b100: r_operand = r4;
+            3'b101: r_operand = r5;
+            3'b110: r_operand = r6;
+            3'b111: r_operand = r7;
+            default: r_operand = 16'b0;
+        endcase
+        case (des_reg)
+            3'b000: l_operand = r0;
+            3'b001: l_operand = r1;
+            3'b010: l_operand = r2;
+            3'b011: l_operand = r3;
+            3'b100: l_operand = r4;
+            3'b101: l_operand = r5;
+            3'b110: l_operand = r6;
+            3'b111: l_operand = r7;
+            default: l_operand = 16'b0;
+        endcase
+    end
 end
 
 always @(posedge clock or negedge resetb) begin
@@ -92,6 +118,8 @@ always @(posedge clock or negedge resetb) begin
         r5 <= 16'b0;
         r6 <= 16'b0;
         r7 <= 16'b0;
+	rs_data <= 16'b0;
+	rd_data <= 16'b0;
     end
     else if(t3)begin
      if(mem_wr_en)begin
@@ -131,30 +159,7 @@ always @(posedge clock or negedge resetb) begin
             default: rs_data <= 16'b0;
         endcase
     end
-    else if(operand_en)begin
-        case (src_reg)
-            3'b000: r_operand <= r0;
-            3'b001: r_operand <= r1;
-            3'b010: r_operand <= r2;
-            3'b011: r_operand <= r3;
-            3'b100: r_operand <= r4;
-            3'b101: r_operand <= r5;
-            3'b110: r_operand <= r6;
-            3'b111: r_operand <= r7;
-            default: r_operand <= 16'b0;
-        endcase
-        case (des_reg)
-            3'b000: l_operand <= r0;
-            3'b001: l_operand <= r1;
-            3'b010: l_operand <= r2;
-            3'b011: l_operand <= r3;
-            3'b100: l_operand <= r4;
-            3'b101: l_operand <= r5;
-            3'b110: l_operand <= r6;
-            3'b111: l_operand <= r7;
-            default: l_operand <= 16'b0;
-        endcase
-    end
+    
     else if(push)begin
         case (src_reg)
             3'b000: rs_data <= r0; 
@@ -261,28 +266,28 @@ always @(posedge clock or negedge resetb) begin
         end
         else if (clr) begin
              case (des_reg)
-                3'b000: begin r0[n] <= 16'b0; end 
-                3'b001: begin r1[n] <= 16'b0; end 
-                3'b010: begin r2[n] <= 16'b0; end 
-                3'b011: begin r3[n] <= 16'b0; end 
-                3'b100: begin r4[n] <= 16'b0; end 
-                3'b101: begin r5[n] <= 16'b0; end 
-                3'b110: begin r6[n] <= 16'b0; end 
-                3'b111: begin r7[n] <= 16'b0; end 
-                default: begin r0[n] <= 16'b0; end 
+                3'b000: begin r0[n] <= 1'b0; end 
+                3'b001: begin r1[n] <= 1'b0; end 
+                3'b010: begin r2[n] <= 1'b0; end 
+                3'b011: begin r3[n] <= 1'b0; end 
+                3'b100: begin r4[n] <= 1'b0; end 
+                3'b101: begin r5[n] <= 1'b0; end 
+                3'b110: begin r6[n] <= 1'b0; end 
+                3'b111: begin r7[n] <= 1'b0; end 
+                default: begin r0[n] <= 1'b0; end 
             endcase
         end
         else if (set) begin
               case (des_reg)
-                3'b000: begin r0[n] <= 16'b1; end 
-                3'b001: begin r1[n] <= 16'b1; end 
-                3'b010: begin r2[n] <= 16'b1; end 
-                3'b011: begin r3[n] <= 16'b1; end 
-                3'b100: begin r4[n] <= 16'b1; end 
-                3'b101: begin r5[n] <= 16'b1; end 
-                3'b110: begin r6[n] <= 16'b1; end 
-                3'b111: begin r7[n] <= 16'b1; end 
-                default: begin r0[n] <= 16'b1; end 
+                3'b000: begin r0[n] <= 1'b1; end 
+                3'b001: begin r1[n] <= 1'b1; end 
+                3'b010: begin r2[n] <= 1'b1; end 
+                3'b011: begin r3[n] <= 1'b1; end 
+                3'b100: begin r4[n] <= 1'b1; end 
+                3'b101: begin r5[n] <= 1'b1; end 
+                3'b110: begin r6[n] <= 1'b1; end 
+                3'b111: begin r7[n] <= 1'b1; end 
+                default: begin r0[n] <= 1'b1; end 
             endcase
         end
         else if(reg_dt_sel)begin
