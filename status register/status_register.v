@@ -1,4 +1,4 @@
-`include "1.defines/define.vh"
+`include "define.vh"
 module status_register (
     input wire clock,
     input wire resetb,
