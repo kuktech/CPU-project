@@ -26,9 +26,7 @@ module data_bus(
 
     output wire[15:0] dbus_in_data
 );
-
 assign dbus_in_data = dmem_rdata;
-
 reg drdb;
 reg dwrb;
 reg dcsb;
@@ -102,18 +100,24 @@ always @(posedge clock or negedge resetb) begin
          dwrb_pin <= dwrb;
          dcsb_pin <= dcsb;
          case({dbus_access,dbus_addr_sel,dbus_data_sel})
+	    // PUSH
          6'b111010: begin
             mbr <= rs_data;
           end
+
+         // ST
          6'b110101: begin
             mbr <= rs_data;
         end
+
+        // CALL
         6'b111011: begin
             mbr <= pc_in;
         end 
         endcase 
     end
     else if (t5) begin
+	     
             drdb_pin <= 1'b1;
             dwrb_pin <= 1'b1;
             dcsb_pin <= 1'b1;

@@ -363,7 +363,7 @@ always @(*) begin
             src_reg_dec = rs;
         end
         `MVSP:begin
-            sp_wr_en_dec = 1'b1;
+	    sp_wr_en_dec = 1'b1;
             mv_sp_dec = 1'b1;
             src_reg_dec = rs;
         end
@@ -388,7 +388,7 @@ always @(*) begin
             src_reg_dec = rs;
         end
         `POP:begin
-	        mem_rd_en_dec = 1'b1;
+	    mem_rd_en_dec = 1'b1;
             sp_wr_en_dec = 1'b1;
             pop_dec = 1'b1;
             reg_wr_en_dec = 1'b1;
@@ -668,7 +668,7 @@ always @(*) begin
             src_reg_dec = rs;
         end
         `RET:begin
-            pc_wr_en_dec = 1'b1;
+	    pc_wr_en_dec = 1'b1;
             sp_wr_en_dec = 1'b1;
             pc_sel_dec = 2'b11;
             dbus_access_dec = 2'b10;

@@ -18,7 +18,7 @@ assign sp_out = sp;
 
 always @(posedge clock or negedge resetb ) begin
     if(!resetb)begin
-        sp = 16'b0000000011111111;
+        sp <= 16'b0000000011111111;
     end
     else if(t5&&sp_wr_en)begin
         if(mv_sp)begin
