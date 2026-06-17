@@ -26,7 +26,7 @@ always @(posedge clock or negedge resetb) begin
         prdb_pin <= 1'b0;
         pcsb_pin <= 1'b0;
     end
-    else if (t1) begin      
+    else if (t1) begin        
         prdb_pin <= 1'b1;
         pcsb_pin <= 1'b1;
     end
