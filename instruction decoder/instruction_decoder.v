@@ -171,10 +171,12 @@ always @(*) begin
         `BR:begin
             pc_wr_en_dec = 1'b1;
             pc_sel_dec = 2'b10;
+            offset_dec = os;
         end
         `BRR:begin
             pc_wr_en_dec = 1'b1;
             pc_sel_dec = 2'b01;
+            offset_dec = os;
         end
         `BRNZ:begin
             if(!zf) begin
