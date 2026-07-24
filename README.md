@@ -1,4 +1,4 @@
-각 블록파일에 설명참고
+Check txt file in each block
 
 
 
